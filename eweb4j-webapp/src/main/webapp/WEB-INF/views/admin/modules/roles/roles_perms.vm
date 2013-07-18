@@ -1,0 +1,80 @@
+<div class="pageContent" layoutH="300">
+	<form method="post" action="action/roles/create_role_perm_relations" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);">
+	<div class="panelBar" style="padding:5px">
+		<ul class="toolBar" >
+			<div class="buttonActive buttonActiveHover">
+				<div class="buttonContent">
+					<button type="submit">确认提交</button>
+				</div>
+			</div>
+		</ul>
+	</div>
+	<div id="jbsxBox2" class="unitBox"
+		style="float: left; display: block;height:50%; overflow: auto; width: 30%;">
+		<div class="pageContent"
+			style="height:50%;border-left: 1px #B8D0D6 solid; border-right: 1px #B8D0D6 solid">
+			<table class="list" width="98%" layoutH="360" >
+				<thead>
+					<tr>
+						<th width="30"><input type="checkbox" group="roleIds" class="checkboxCtrl"></th>
+						<th width="">角色名称</th>
+					</tr>
+				</thead>
+				<tbody>
+				#set($roles = $QheeDBUtil.role().findAll())
+				#foreach($pojo in $roles)
+					<tr target="pojo_id" rel="${pojo.id}">
+						<td width="30"><center><input id="role_${pojo.id}" name="roleIds" value="${pojo.id}" type="checkbox"></center></td>
+						<td onclick="selectBox('role_${pojo.id}')">
+							<a style="color:blue; text-decoration:underline" href="modules/roles/permissions?roleId=${pojo.id}" target="ajax" rel="permission_detail" reloadFlag="1">${pojo.name}</a>
+						</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+	<div id="jbsxBox3" class="unitBox" style="margin-left: 30%; height:50%;">
+		<div class="pageContent" style="border: 1px #B8D0D6 solid; height:50%" layoutH="360">
+			<ul class="expand tree treeFolder treeCheck">
+				<li><a>全部权限</a>
+					
+						<ul>
+						#set($permissions = $QheeDBUtil.permission().findAll())
+						#foreach($pojo in $permissions)
+							<li><a tname="permissionIds" tvalue="${pojo.permission_id}" >${pojo.permission_name}</a></li>
+						#end
+						</ul>
+						
+				</li>
+			</ul>
+		</div>
+	</div>
+	
+	</form>
+</div>
+
+<script type="text/javascript">
+	function interceptOnClick(id){
+		var url = $("#permission_item_detail_"+id).attr("link");
+		alertMsg.confirm("您确定要执行删除操作吗？", {
+            okCall: function(){
+            	$.post(url, {"item":id}, function(json){
+					if(json.status){
+						alertMsg.correct(json.message)
+						$("#permission_item_"+id).hide();
+					}else{
+						alertMsg.error(json.message);
+					}
+            	}, "json");
+        	}
+		});
+	}
+</script>
+
+<div class="pageContent" style="height:300px;overflow:auto !important;border: 1px #B8D0D6 solid;"
+	id="permission_detail" >
+</div>
+
+

@@ -1,0 +1,45 @@
+<div class="pageContent">
+	<form method="post" action="action/users/create" class="pageForm required-validate" onsubmit="return my_form_validate(this)">
+		<div class="pageFormContent" layoutH="58">
+			<div class="unit">
+				<label>邮箱：</label>
+				<input type="text" name="email" size="30" minlength="1" maxlength="255" class="required email" />
+			</div>
+			<div class="unit">
+				<label>用户名：</label>
+				<input type="text" name="name" size="30" minlength="1" maxlength="255" class="required" />
+			</div>
+			<div class="unit">
+				<label>昵称：</label>
+				<input type="text" name="nick_name" size="30" minlength="1" maxlength="255" class="required" />
+			</div>
+			<div class="unit">
+				<label>密码：</label>
+				<input id="f_pwd" type="password" name="pwd" size="30" minlength="1" maxlength="1024" class="required"/>
+			</div>
+			<div class="unit">
+				<label>重复输入密码：</label>
+				<input id="f_rpwd" type="password" name="rpwd" size="30" minlength="1" maxlength="1024" equalTo="#f_pwd" class="required"/>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+<script src="$link.js("sha1.js")"></script>
+<script type='text/javascript'>
+<!--
+function my_form_validate(form){
+	var pwd=$('#f_pwd').val();
+	$('#f_pwd').val(CryptoJS.SHA1(pwd));
+	var rpwd = $('#f_rpwd').val();
+	$('#f_rpwd').val(CryptoJS.SHA1(rpwd));
+	
+	return validateCallback(form, dialogAjaxDone)
+}
+//-->
+</script>

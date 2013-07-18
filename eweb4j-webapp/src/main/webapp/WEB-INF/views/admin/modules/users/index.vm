@@ -1,0 +1,100 @@
+#set($pageNum = $link.param("pageNum", 1))
+#set($numPerPage = $link.param("numPerPage", 15))
+#set($orderField = $link.param("orderField", "id"))
+#set($orderDirection = $link.param("orderDirection", "desc"))
+#set($searchField = $link.param("searchField", ""))
+#set($searchKeyword = $link.param("searchKeyword", ""))
+
+<form id="pagerForm" method="post" action="modules/users">
+	<input type="hidden" name="pageNum" value="$pageNum" />
+	<input type="hidden" name="numPerPage" value="$numPerPage" />
+	<input type="hidden" name="orderField" value="$orderField" />
+	<input type="hidden" name="orderDirection" value="$orderDirection" />
+	<input type="hidden" name="searchField" value="$searchField" />
+	<input type="hidden" name="searchKeyword" value="$searchKeyword" />
+</form>
+<div class="pageHeader">
+	<form rel="pagerForm" onsubmit="return navTabSearch(this);" action="modules/users" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" style="height:28px;">
+			<li style="height:25px; padding-top:3px; width:auto;">
+			    <select class="combox" name="searchField">
+				<option #if($searchField == "") selected="selected" #end value="">全文检索</option>
+				<option #if($searchField == "email") selected="selected" #end value="email">邮箱</option>
+				<option #if($searchField == "name") selected="selected" #end value="name">用户名</option>
+				<option #if($searchField == "nick_name") selected="selected" #end value="nick_name">昵称</option>
+			    </select>
+			    &nbsp;&nbsp;
+			    <input type="text" name="searchKeyword" size="30" value="$searchKeyword" />
+			</li>
+			<li style="height:25px; padding-left:5px;">
+				<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			</li>
+		</ul>
+		
+		
+	</div>
+	</form>
+</div>
+
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			<li><a class="add" href="modules/users/edit_new" target="dialog" width="450" height="270"><span>添加</span></a></li>
+			<li><a class="edit" href="modules/users/edit?id={selected_id}" rel="edit_user" target="dialog" warn="请选择一条记录" width="450" height="300"><span>修改</span></a></li>
+			<li><a title="确定要删除吗？" warn="请选择一条记录" 
+			target="selectedTodo" rel="ids" href="action/users/batch_delete" class="delete"><span>删除</span></a></li>
+		</ul>
+	</div>
+	<div id="w_list_print">
+	<table class="table" width="98%" targetType="navTab" asc="asc" desc="desc" layoutH="115">
+		<thead>
+			<tr>
+				<th width="30"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
+				<th width="80" orderField="id" #if("id" == $orderField)class="$orderDirection"#end>ID</th>
+				<th orderField="email" #if("email" == $orderField)class="$orderDirection"#end>邮箱</th>
+				<th width="100" orderField="name" #if("name" == $orderField)class="$orderDirection"#end>用户名</th>
+				<th width="100" orderField="nick_name" #if("nick_name" == $orderField)class="$orderDirection"#end>昵称</th>
+				<th width="100">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			#set($list = $QheeDBUtil.user().getPage($pageNum, $numPerPage, $orderField, $orderDirection, $searchField, $searchKeyword))
+			#foreach($obj in $list)
+			<tr target="selected_id" rel="$obj.id">
+				<td><input id="user_${obj.id}" name="ids" value="${obj.id}" type="checkbox"></td>
+				<td onClick="selectBox('user_'+${obj.id})">$obj.id</td>
+				<td onClick="selectBox('user_'+${obj.id})">$obj.email</td>
+				<td onClick="selectBox('user_'+${obj.id})">$obj.name</td>
+				<td onClick="selectBox('user_'+${obj.id})">$obj.nick_name</td>
+				<td>
+				    <a title="删除" target="ajaxTodo" href="action/users/delete?id=$obj.id" class="btnDel">删除</a>
+				    <a title="编辑" target="dialog" href="modules/users/edit?id=$obj.id" rel="edit_role" class="btnEdit" width="450" height="300">编辑</a>
+				    <a title="用户 [$obj.id,$obj.name] 分配角色" target="dialog" href="modules/users/edit_role?id=$obj.id" rel="edit_user_role_$obj.id" class="btnRole" width="300" height="400">分配角色</a>
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	</div>
+	
+	<div class="panelBar" >
+		#set($totalCount = $QheeDBUtil.user().totalCount($searchField, $searchKeyword))
+		<div class="pages">
+			<span>显示</span>
+			<select name="numPerPage" onchange="navTabPageBreak({numPerPage:this.value})">
+				<option #if($numPerPage == 10) selected="selected" #end value="10">10</option>
+				<option #if($numPerPage == 15) selected="selected" #end value="15">15</option>
+				<option #if($numPerPage == 20) selected="selected" #end value="20">20</option>
+				<option #if($numPerPage == 50) selected="selected" #end value="50">50</option>
+				<option #if($numPerPage == 100) selected="selected" #end value="100">100</option>
+				<option #if($numPerPage == 200) selected="selected" #end value="200">200</option>
+			</select>
+			<span>条，共$totalCount条</span>
+		</div>
+		
+		<div class="pagination" targetType="navTab" totalCount="$totalCount" numPerPage="$numPerPage" pageNumShown="10" currentPage="$pageNum"></div>
+
+	</div>
+
+</div>

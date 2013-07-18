@@ -1,0 +1,43 @@
+#set($roleId = $link.param("roleId",0))
+<div class="panelBar">
+	<ul class="toolBar">
+		<li>
+			<a title="确实要删除这些记录吗?" target="selectedTodo" rel="permissionIds"
+				href="action/roles/delete_role_perm?roleId=$roleId" class="delete">
+				<span>批量删除</span>
+			</a>
+		</li>
+	</ul>
+</div>
+
+<table class="list" width="100%">
+	<thead>
+		<tr>
+			<th width="30"><input type="checkbox" group="permissionIds" class="checkboxCtrl"></th>
+			<th width="200">权限名称</th>
+			<th width="200">资源URI</th>
+			<th>权限描述</th>
+			<th width="40">操作</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		#set($permissions = $QheeDBUtil.role().findPermissionsById($roleId))
+		#if(!$permissions)
+	    	<tr><td colspan="4"><center>抱歉，没有任何记录。</center></td></tr>
+		#end
+		
+		#foreach($pojo in $permissions)
+		<tr id="permission_item_${pojo.permission_id}" target="pojo_id" rel="${pojo.permission_id}">
+			<td style="text-align:center;"><input id="permission_${pojo.permission_id}" name="permissionIds" value="${pojo.permission_id}" type="checkbox"></td>
+			
+			<td onclick="selectBox('permission_${pojo.permission_id}')">${pojo.permission_name}</td>
+			<td onclick="selectBox('permission_${pojo.permission_id}')">${pojo.uri}</td>
+			<td onclick="selectBox('permission_${pojo.permission_id}')">${pojo.permission_desc}</td>
+			<td>
+				<a href="#" title="删除" rel="permission_detail" onclick="return interceptOnClick($pojo.permission_id);" link="action/roles/delete_role_perm?roleId=$roleId&permissionIds=$pojo.permission_id" id="permission_item_detail_$pojo.permission_id" class="btnDel">删除</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>

@@ -1,0 +1,12 @@
+<div class="accordion" fillSpace="sideBar">
+	<div class="accordionHeader">
+		<h2><span>Folder</span>会员管理</h2>
+	</div>
+	<div class="accordionContent">
+		<ul class="tree treeFolder">
+			<li><a href="modules/entapply/apply_listed_base" target="navTab">挂牌企业展示</a></li>
+			<li><a href="modules/entapply/apply_deposit_base" target="navTab">登记托管企业展示</a></li>
+			<li><a href="modules/ent/ent_manage" target="navTab">企业展示信息整理</a></li>
+		</ul>
+	</div>
+</div>

@@ -1,0 +1,26 @@
+#set($id = $link.param("id", 0))
+
+#set($obj = $QheeDBUtil.role().findById($id))
+<div class="pageContent">
+	
+	<form method="post" action="action/roles/update" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
+		<div class="pageFormContent" layoutH="58">
+			<input type="hidden" name="id" value="$obj.id" />
+			<div class="unit">
+				<label>ID：</label>
+				<input type="text" value="$obj.id" size="30" minlength="1" maxlength="255" class="required" disabled="disabled" />
+			</div>
+			<div class="unit">
+				<label>角色名：</label>
+				<input type="text" name="name" value="$obj.name" size="30" minlength="1" maxlength="255" class="required" />
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+	
+</div>

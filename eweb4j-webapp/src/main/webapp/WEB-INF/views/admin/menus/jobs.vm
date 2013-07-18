@@ -1,0 +1,12 @@
+<div class="accordion" fillSpace="sideBar">
+	<div class="accordionHeader">
+		<h2><span>Folder</span>人才招聘管理</h2>
+	</div>
+	<div class="accordionContent">
+		<ul class="tree treeFolder">
+			<li><a href="_manager/job_categories" target="navTab">职位类别管理</a></li>
+			<li><a href="_manager/jobs" target="navTab">职位管理</a></li>
+			<li><a href="_manager/job_applies" target="navTab">应聘人才管理</a></li>
+		</ul>
+	</div>
+</div>

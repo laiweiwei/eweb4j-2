@@ -1,0 +1,47 @@
+
+#set($email = $request.getParameter("regok"))
+
+<div class="pageContent">
+	
+	<form id="#form_user" method="post" action="action/sessions/create")" class="pageForm required-validate" onsubmit="return my_form_validate(this)">
+		<div class="pageFormContent" layoutH="58">
+
+			<div class="unit">
+				<label>邮箱：</label>
+				<input id="f_email" type="text" name="email" size="30" minlength="1" maxlength="255" class="required email" placeholder='帐号/邮箱' />
+			</div>
+			<div class="unit">
+				<label>密码：</label>
+				<input id="f_pwd" type="password" name="pwd" size="30" minlength="1" maxlength="1024" class="required"/>
+			</div>
+
+			<div class="unit">
+				<input type='checkbox' name='save_login' value='1' checked='checked'/> 记住我的登录信息<span style='color:#A00;'>（请勿在公用电脑或者网吧内使用此项）</span>
+			</div>
+			
+			
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+	
+</div>
+
+<script src="$link.js("sha1.js")"></script>
+<script type='text/javascript'>
+<!--
+#if($email)$('#f_pwd').focus();#else$('#f_email').focus();#end
+
+function my_form_validate(form){
+	var pwd=$('#f_pwd').val();
+	alert("pwd->"+pwd)
+	$('#f_pwd').val(CryptoJS.SHA1(pwd));
+	
+	return validateCallback(form, dialogAjaxDone)
+}
+//-->
+</script>

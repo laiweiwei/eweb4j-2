@@ -1,0 +1,33 @@
+
+<div class="pageContent">
+	
+	<form method="post" action="action/permissions/create" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
+		<div class="pageFormContent" layoutH="58">
+
+			<div class="unit">
+				<label>权限名：</label>
+				<input type="text" name="permission_name" size="30" minlength="1" maxlength="255" class="required" />
+			</div>
+			<div class="unit">
+				<label>URI：</label>
+				<input type="text" name="uri" size="30" minlength="1" maxlength="1024" class="required"/>
+			</div>
+			<div class="unit">
+				<label>分组：</label>
+				<input type="text" name="permission_group" size="30" minlength="1" maxlength="1024" class="required"/>
+			</div>
+			<div class="unit">
+				<label>权限描述：</label>
+				<textarea name="permission_desc" rows="5" cols="50"></textarea>
+			</div>
+			
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+	
+</div>

@@ -1,0 +1,11 @@
+<div class="accordion" fillSpace="sideBar">
+	<div class="accordionHeader">
+		<h2><span>Folder</span>新闻公告</h2>
+	</div>
+	<div class="accordionContent">
+		<ul class="tree treeFolder">
+			<li><a href="_manager/article_categories" target="navTab">类别管理</a></li>
+			<li><a href="_manager/article" target="navTab">新闻发布</a></li>
+		</ul>
+	</div>
+</div>

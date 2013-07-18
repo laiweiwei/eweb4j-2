@@ -1,0 +1,102 @@
+#set($pageNum = $link.param("pageNum", 1))
+#set($numPerPage = $link.param("numPerPage", 15))
+#set($orderField = $link.param("orderField", "permission_id"))
+#set($orderDirection = $link.param("orderDirection", "desc"))
+#set($searchField = $link.param("searchField", ""))
+#set($searchKeyword = $link.param("searchKeyword", ""))
+
+<form id="pagerForm" method="post" action="modules/permissions">
+	<input type="hidden" name="pageNum" value="$pageNum" />
+	<input type="hidden" name="numPerPage" value="$numPerPage" />
+	<input type="hidden" name="orderField" value="$orderField" />
+	<input type="hidden" name="orderDirection" value="$orderDirection" />
+	<input type="hidden" name="searchField" value="$searchField" />
+	<input type="hidden" name="searchKeyword" value="$searchKeyword" />
+</form>
+<div class="pageHeader">
+	<form rel="pagerForm" onsubmit="return navTabSearch(this);" action="modules/permissions" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" style="height:28px;">
+			<li style="height:25px; padding-top:3px; width:auto;">
+			    <select class="combox" name="searchField">
+				<option #if($searchField == "") selected="selected" #end value="">全文检索</option>
+				<option #if($searchField == "permission_name") selected="selected" #end value="permission_name">权限名</option>
+				<option #if($searchField == "uri") selected="selected" #end value="uri">权限URI</option>
+				<option #if($searchField == "permission_desc") selected="selected" #end value="permission_desc">权限描述</option>
+				<option #if($searchField == "permission_group") selected="selected" #end value="permission_group">权限分组</option>
+			    </select>
+			    &nbsp;&nbsp;
+			    <input type="text" name="searchKeyword" size="30" value="$searchKeyword" />
+			</li>
+			<li style="height:25px; padding-left:5px;">
+				<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			</li>
+		</ul>
+		
+		
+	</div>
+	</form>
+</div>
+
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			<li><a class="add" href="modules/permissions/edit_new" target="dialog" width="580" height="300"><span>添加</span></a></li>
+			<li><a class="edit" href="modules/permissions/edit?id={selected_id}" rel="edit_permission" target="dialog" warn="请选择一条记录"  width="580" height="330"><span>修改</span></a></li>
+			<li><a title="确定要删除吗？" warn="您没有选择任何项目！请选择列表中的数据，选中项将会以蓝色高亮显示！" 
+			target="selectedTodo" rel="ids" href="action/permissions/batch_delete" class="delete"><span>删除</span></a></li>
+		</ul>
+	</div>
+	<div id="w_list_print">
+	<table class="table" width="98%" targetType="navTab" asc="asc" desc="desc" layoutH="115">
+		<thead>
+			<tr>
+				<th width="30"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
+				<th width="80" orderField="permission_id" #if("permission_id" == $orderField)class="$orderDirection"#end>ID</th>
+				<th orderField="permission_name" #if("permission_name" == $orderField)class="$orderDirection"#end>权限名称</th>
+				<th width="100" orderField="uri" #if("uri" == $orderField)class="$orderDirection"#end>URI</th>
+				<th orderField="permission_desc" #if("permission_desc" == $orderField)class="$orderDirection"#end>权限描述</th>
+				<th width="100" orderField="permission_group" #if("permission_group" == $orderField)class="$orderDirection"#end>权限分组</th>
+				<th width="60">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			#set($list = $QheeDBUtil.permission().getPage($pageNum, $numPerPage, $orderField, $orderDirection, $searchField, $searchKeyword))
+			#foreach($obj in $list)
+			<tr target="selected_id" rel="$obj.permission_id">
+				<td><input id="permission_${obj.permission_id}" name="ids" value="${obj.permission_id}" type="checkbox"></td>
+				<td onClick="selectBox('permission_'+${obj.permission_id})">$obj.permission_id</td>
+				<td onClick="selectBox('permission_'+${obj.permission_id})">$obj.permission_name</td>
+				<td onClick="selectBox('permission_'+${obj.permission_id})">$obj.uri</td>
+				<td onClick="selectBox('permission_'+${obj.permission_id})">$obj.permission_desc</td>
+				<td onClick="selectBox('permission_'+${obj.permission_id})">$!obj.permission_group</td>
+				<td>
+				    <a title="删除" target="ajaxTodo" href="action/permissions/delete?id=$obj.permission_id" class="btnDel">删除</a>
+				    <a title="编辑权限" target="dialog" href="modules/permissions/edit?id=$obj.permission_id" rel="edit_permission" class="btnEdit" width="580" height="330">编辑</a>
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	</div>
+	
+	<div class="panelBar" >
+		#set($totalCount = $QheeDBUtil.permission().totalCount($searchField, $searchKeyword))
+		<div class="pages">
+			<span>显示</span>
+			<select name="numPerPage" onchange="navTabPageBreak({numPerPage:this.value})">
+				<option #if($numPerPage == 10) selected="selected" #end value="10">10</option>
+				<option #if($numPerPage == 15) selected="selected" #end value="15">15</option>
+				<option #if($numPerPage == 20) selected="selected" #end value="20">20</option>
+				<option #if($numPerPage == 50) selected="selected" #end value="50">50</option>
+				<option #if($numPerPage == 100) selected="selected" #end value="100">100</option>
+				<option #if($numPerPage == 200) selected="selected" #end value="200">200</option>
+			</select>
+			<span>条，共$totalCount条</span>
+		</div>
+		
+		<div class="pagination" targetType="navTab" totalCount="$totalCount" numPerPage="$numPerPage" pageNumShown="10" currentPage="$pageNum"></div>
+
+	</div>
+
+</div>

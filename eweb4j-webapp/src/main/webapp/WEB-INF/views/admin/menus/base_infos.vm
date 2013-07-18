@@ -1,0 +1,13 @@
+<div class="accordion" fillSpace="sideBar">
+	<div class="accordionHeader">
+		<h2><span>Folder</span>网站基本信息管理</h2>
+	</div>
+	<div class="accordionContent">
+		<ul class="tree treeFolder">
+			<li><a href="_manager/base_infos" target="navTab">基本信息填写</a></li>
+			<li><a href="_manager/zones" target="navTab">地区管理</a></li>
+			<li><a href="_manager/trades" target="navTab">行业管理</a></li>
+			<li><a href="_manager/menus" target="navTab">前台菜单管理</a></li>
+		</ul>
+	</div>
+</div>

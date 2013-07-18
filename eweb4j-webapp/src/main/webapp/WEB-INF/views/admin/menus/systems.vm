@@ -1,0 +1,12 @@
+<div class="accordion" fillSpace="sideBar">
+	<div class="accordionHeader">
+		<h2><span>Folder</span>管理员管理</h2>
+	</div>
+	<div class="accordionContent">
+		<ul class="tree treeFolder">
+			<li><a href="modules/users" target="navTab" fresh="true" rel="modules/users">账号管理</a></li>
+			<li><a href="modules/roles" target="navTab" fresh="true" rel="modules/roles">角色权限</a></li>
+			<li><a href="modules/permissions" target="navTab" fresh="true" rel="modules/permissions">权限定义</a></li>
+		</ul>
+	</div>
+</div>

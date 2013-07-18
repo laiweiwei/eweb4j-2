@@ -1,0 +1,80 @@
+#set($id = $link.param("id", 0))
+#set($role = $QheeDBUtil.role().findByIdAndGetPermIds($id))
+
+#set($searchField = $link.param("searchField", ""))
+#set($searchKeyword = $link.param("searchKeyword", ""))
+<div class="pageHeader">
+    <form rel="pageForm" onsubmit="return search_tree({search_form:this, tree_form:'#role_perm_form'});" action="#" method="post">
+	<input type="hidden" name="id" value="$id" />
+        <div class="searchBar">
+	    <ul class="searchContent" style="height:28px;">
+	        <li style="height:25px; padding-top:3px; width:auto;">
+		    <select class="combox" name="searchField">
+		        <option #if($searchField == "") selected="selected" #end value="">全文检索</option>
+			<option #if($searchField == "permission_name") selected="selected" #end value="permission_name">权限名</option>
+			<option #if($searchField == "uri") selected="selected" #end value="uri">权限URI</option>
+			<option #if($searchField == "permission_desc") selected="selected" #end value="permission_desc">权限描述</option>
+		    </select>
+		    &nbsp;&nbsp;
+		    <input type="text" name="searchKeyword" size="40" value="$searchKeyword" />
+		</li>
+	        <li style="height:25px; padding-left:10px; width:auto;">
+	            <div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+	        </li>
+	    </ul>
+        </div>
+    </form>
+</div>
+<div class="pageContent">
+	<form id="role_perm_form" method="post" action="action/roles/update_role_perm_relation" class="pageForm required-validate" onsubmit="return my_form_validate(this)">
+		<div id="role_perm_form_content" class="pageFormContent" layoutH="98">
+			<input type="hidden" name="roleId" value="$role.id" />
+			<div class="unit">
+			    <ul class="tree treeCheck expand treeFolder">
+				<li><a href="#">全部权限:</a>
+				    <ul>
+				        #set($groups = $QheeDBUtil.permission().findAllSplitByGroup())
+				        #foreach($group in $groups)
+				        <li><a href="#">$group.group_name</a>
+					    <ul>
+				                #foreach($pojo in $group.items)
+					        <li><a searchable=true tname="_pid" tvalue="$pojo.id" permission_name="$pojo.permission_name" uri="$pojo.uri" permission_desc="$pojo.permission_desc" #if($role.GetPermIds().contains($pojo.permission_id)) checked=true #end>$pojo.permission_name</a></li>
+				                #end
+					    </ul>
+					</li>
+				        #end
+				    </ul>
+				</li>
+			    </ul>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+
+<script>
+function my_form_validate(form) {
+    var $form = $(form);
+    //先删掉所有permIds的input
+    var inps = $form.find("input[name='permIds']");
+    inps.each(function(i){
+        $(this).remove();
+    });
+    //此处属于DWZ的树形checkbox的bug，需要额外编写代码把选中的条目找出来并写到表单参数域里
+    var ckboxs = $form.find("div[class='ckbox checked']");
+    ckboxs.each(function(i){
+	var permId = $(this).find('input').attr('value');
+	if (permId && 'on' != permId) {
+	    var html = "<input type='hidden' name='permIds' value='" + permId + "' />";
+	    $form.append(html);
+	}
+    });
+
+    return validateCallback($form, dialogAjaxDone)
+}
+</script>

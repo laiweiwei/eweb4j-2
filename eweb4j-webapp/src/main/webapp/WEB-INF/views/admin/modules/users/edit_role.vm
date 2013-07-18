@@ -1,0 +1,73 @@
+#set($id = $link.param("id", 0))
+#set($user = $QheeDBUtil.user().findByIdAndGetRoleIds($id))
+
+#set($searchField = $link.param("searchField", ""))
+#set($searchKeyword = $link.param("searchKeyword", ""))
+<div class="pageHeader">
+    <form rel="pageForm" onsubmit="return search_tree({search_form:this, tree_form:'#user_role_form'});" action="#" method="post">
+        <div class="searchBar">
+	    <ul class="searchContent" style="height:28px;">
+	        <li style="height:25px; padding-top:3px; width:auto;">
+		    <select class="combox" name="searchField">
+		        <option #if($searchField == "") selected="selected" #end value="">全文检索</option>
+			<option #if($searchField == "name") selected="selected" #end value="name">角色名</option>
+		    </select>
+		    &nbsp;&nbsp;
+		    <input type="text" name="searchKeyword" size="20" value="$searchKeyword" />
+		</li>
+	        <li style="height:25px; padding-left:10px; width:auto;">
+	            <div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+	        </li>
+	    </ul>
+        </div>
+    </form>
+</div>
+<div class="pageContent">
+	<form id="user_role_form" method="post" action="action/users/update_user_role_relation" class="pageForm required-validate" onsubmit="return my_form_validate(this)">
+		<div class="pageFormContent" layoutH="98">
+			<input type="hidden" name="userId" value="$user.id" />
+			<div class="unit">
+			    <ul class="tree treeCheck expand treeFolder">
+				<li><a href="#">全部角色:</a>
+				    <ul>
+				    #set($roles = $QheeDBUtil.role().findAll())
+				    #foreach($pojo in $roles)
+					<li><a searchable=true tname="_rid" tvalue="$pojo.id" name="$pojo.name" #if($user.GetRoleIds().contains($pojo.id)) checked=true #end>$pojo.name</a></li>
+				    #end
+				    </ul>
+				</li>
+			    </ul>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">提交</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+
+<script>
+var roleIds = "";
+function my_form_validate(form) {
+    var $form = $(form);
+    //先删掉所有roleIds的input
+    var inps = $form.find("input[name='roleIds']");
+    inps.each(function(i){
+        $(this).remove();
+    });
+    
+    //此处属于DWZ的树形checkbox的bug，需要额外编写代码把选中的条目找出来并写到表单参数域里
+    var ckboxs = $form.find("div[class='ckbox checked']");
+    ckboxs.each(function(i){
+	var roleId = $(this).find('input').attr('value');
+	if (roleId && 'on' != roleId) {
+	    var html = "<input type='hidden' name='roleIds' value='" + roleId + "' />";
+	    $form.append(html);
+	}
+    });
+
+    return validateCallback($form, dialogAjaxDone)
+}
+</script>
