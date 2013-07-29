@@ -10,6 +10,8 @@ import java.util.List;
  */
 public class JPAClassInfo {
 	
+	public final static String STORAGE_KEY = "JAP-CLASS-INFO";
+	
 	/**
 	 * 该Entity映射的数据库表名
 	 */

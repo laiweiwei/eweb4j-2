@@ -9,11 +9,5 @@
 	<artifactId>eweb4j-core</artifactId>
 	
 	<dependencies>
-		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>persistence-api</artifactId>
-			<version>1.0</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 </project>

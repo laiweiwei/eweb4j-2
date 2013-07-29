@@ -1,8 +1,6 @@
 package com.eweb4j.core.plugin;
 
-import java.util.Map;
-
-import com.eweb4j.core.config.Config;
+import com.eweb4j.core.configurator.Storage;
 
 
 /**
@@ -10,16 +8,19 @@ import com.eweb4j.core.config.Config;
  * @author weiwei l.weiwei@163.com
  * @date 2013-6-13 上午11:05:32
  */
-public abstract class Plugins {
+public abstract class PluginManager {
 
-	public abstract Config getConfig();
-	
 	/**
-	 * 获取所有插件
-	 * @date 2013-6-29 上午12:41:39
+	 * 获取配置仓库
 	 * @return
 	 */
-	public abstract Map<String, Plugin> getPlugins();
+	public abstract Storage<String, Object> getConfigStorage();
+	
+	/**
+	 * 获取插件仓库
+	 * @return
+	 */
+	public abstract Storage<String, Plugin> getPluginStorage();
 	
 	/**
 	 * 获取指定插件

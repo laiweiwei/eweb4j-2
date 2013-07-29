@@ -1,7 +1,11 @@
 package com.eweb4j.orm.plugin;
 
-import com.eweb4j.core.config.Config;
+import java.util.List;
+
+import com.eweb4j.core.configurator.MapStorage;
+import com.eweb4j.core.configurator.Storage;
 import com.eweb4j.core.plugin.Plugin;
+import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAScanner;
 
 /**
@@ -11,6 +15,9 @@ import com.eweb4j.orm.config.JPAScanner;
  */
 public class ORMPlugin extends Plugin{
 
+	private JPAScanner scanner = null;
+	private Storage<String, Object> config = null;
+	
 	public String ID() {
 		return "EWeb4J-ORM";
 	}
@@ -24,9 +31,14 @@ public class ORMPlugin extends Plugin{
 	}
 
 	@Override
-	public void init(Config config) {
-		// TODO Auto-generated method stub
+	public void init(Storage<String, Object> config) {
+		this.config = config;
+		//构建JPA实体类配置信息存放容器
+		Storage<String, JPAClassInfo> jpaStorage = new MapStorage<String, JPAClassInfo>();
+		this.config.put(JPAClassInfo.STORAGE_KEY, jpaStorage);
 		
+		//构建JPA扫描器
+		this.scanner = new JPAScanner(jpaStorage);
 	}
 	
 	public void start() {
@@ -34,12 +46,25 @@ public class ORMPlugin extends Plugin{
 		
 		//扫描${Lib}里jar文件所有类文件
 		
-		//加载Entity实体类的JPA注解信息
-//		JPAConfig.loadEntity(Pets.class);
+		//从配置仓库里获取JPA实体类的类路径
+		List<String> entities = this.config.getListString("jpa.entities", ",");
+		if (entities == null) return ;
+		
+		for (String entity : entities) {
+			try {
+				//加载Entity实体类的JPA注解信息
+				Class<?> entityClass = Thread.currentThread().getContextClassLoader().loadClass(entity);
+				//扫描实体类
+				scanner.scan(entityClass);
+			} catch (Throwable e){
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 	public void stop() {
-		JPAScanner.clear();
+		scanner.clear();
 	}
 
 }

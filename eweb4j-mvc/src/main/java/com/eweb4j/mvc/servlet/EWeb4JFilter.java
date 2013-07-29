@@ -16,11 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.EWeb4J.Listener;
-import com.eweb4j.core.plugin.Plugins;
+import com.eweb4j.core.configurator.MapStorage;
+import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.plugin.Plugin;
+import com.eweb4j.core.plugin.PluginManager;
+import com.eweb4j.core.plugin.PluginManagerImpl;
 import com.eweb4j.mvc.controller.WebContext;
 import com.eweb4j.mvc.plugin.JSPPlugin;
-import com.eweb4j.mvc.view.MVCParameters;
+import com.eweb4j.mvc.view.MVCParamNames;
 import com.eweb4j.mvc.view.TemplateEngine;
 import com.eweb4j.mvc.view.TemplateEngineBuilder;
 import com.eweb4j.mvc.view.TemplateEngineBuilders;
@@ -34,7 +37,7 @@ public class EWeb4JFilter implements Filter{
 	private String root_path = null;
 	private String view_path = null;
 	private String controller_package = null;
-	private EWeb4J eweb4j = EWeb4J.me();
+	private EWeb4J eweb4j = null;
 	private EWeb4J.Listener eweb4j_listener = null;
 	
 	private final static String class_path ;
@@ -75,12 +78,23 @@ public class EWeb4JFilter implements Filter{
 		System.out.println("----------- CONTROLLER_PACKAGE -----------");
 		System.out.println("----------- "+this.controller_package+" -----------");
 		
+		
+		//构建配置容器
+		final Storage<String, Plugin> pluginStorage = new MapStorage<String, Plugin>();
+		final Storage<String, Object> configStorage = new MapStorage<String, Object>();
+		
+		//构建插件管理器
+		final PluginManager pluginManager = new PluginManagerImpl(pluginStorage, configStorage);
+		
+		//构建框架实例
+		eweb4j = new EWeb4J(pluginManager);
+		
 		//准备监听器
 		eweb4j_listener = new EWeb4J.Listener() {
-			public void onStartup(Plugins plugins) {
+			public void onStartup(PluginManager plugins) {
 				//配置一些参数
-				plugins.getConfig().put(MVCParameters.view_absolute_path, root_path + view_path);
-				plugins.getConfig().put(MVCParameters.view_relative_path, view_path);
+				plugins.getConfigStorage().put(MVCParamNames.view_absolute_path, root_path + view_path);
+				plugins.getConfigStorage().put(MVCParamNames.view_relative_path, view_path);
 				
 				//默认模板引擎使用JSP
 				//安装JSP模板引擎插件
@@ -92,7 +106,8 @@ public class EWeb4JFilter implements Filter{
 					return ;
 				for (String listenerClass : listenerClasses.split(",")) {
 					try {
-						Class<EWeb4J.Listener> clazz = (Class<Listener>) Thread.currentThread().getContextClassLoader().loadClass(listenerClass);
+						@SuppressWarnings("unchecked")
+						Class<EWeb4J.Listener> clazz = (Class<EWeb4J.Listener>) Thread.currentThread().getContextClassLoader().loadClass(listenerClass);
 						EWeb4J.Listener listener = clazz.newInstance();
 						listener.onStartup(plugins);
 					} catch (Throwable e) {
@@ -101,13 +116,13 @@ public class EWeb4JFilter implements Filter{
 				}
 			}
 			
-			public void onShutdown(Plugins plugins) {
+			public void onShutdown(PluginManager plugins) {
 				//停止所有插件
 				plugins.stopAll();
 			}
 		};
 		
-		//启动框架
+		//启动框架	
 		eweb4j.startup(eweb4j_listener);
 	}
 	

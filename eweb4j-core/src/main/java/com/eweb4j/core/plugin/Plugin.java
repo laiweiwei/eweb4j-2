@@ -1,9 +1,6 @@
 package com.eweb4j.core.plugin;
 
-import com.eweb4j.core.config.Config;
-
-
-
+import com.eweb4j.core.configurator.Storage;
 
 /**
  * 插件接口
@@ -35,10 +32,10 @@ public abstract class Plugin {
 	
 	/**
 	 * 初始化插件
-	 * @param config 一些配置参数
+	 * @param config 配置
 	 * @return
 	 */
-	public abstract void init(Config config);
+	public abstract void init(Storage<String, Object> config);
 	
 	/**
 	 * 启动插件 

@@ -1,4 +1,4 @@
-package com.eweb4j.jdbc;
+package com.eweb4j.core.jdbc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,8 @@ public class JDBCRow {
 
 	@Override
 	public String toString() {
-		return "JDBCRow [number=" + this.number + ", columns=" + this.columns + "]";
+		return "JDBCRow [number=" + this.number + ", columns=" + this.columns
+				+ "]";
 	}
 	
 }

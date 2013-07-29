@@ -1,6 +1,6 @@
 package com.eweb4j.orm.config;
 /**
- * TODO
+ * JPA的Join类型枚举
  * @author weiwei l.weiwei@163.com
  * @date 2013-6-13 下午02:41:38
  */

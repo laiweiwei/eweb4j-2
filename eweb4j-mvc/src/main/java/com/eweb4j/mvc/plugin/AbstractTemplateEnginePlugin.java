@@ -1,8 +1,8 @@
 package com.eweb4j.mvc.plugin;
 
-import com.eweb4j.core.config.Config;
+import com.eweb4j.core.configurator.Storage;
 import com.eweb4j.core.plugin.Plugin;
-import com.eweb4j.mvc.view.MVCParameters;
+import com.eweb4j.mvc.view.MVCParamNames;
 import com.eweb4j.mvc.view.TemplateEngine;
 import com.eweb4j.mvc.view.TemplateEngineBuilder;
 import com.eweb4j.mvc.view.TemplateEngineBuilders;
@@ -31,8 +31,8 @@ public abstract class AbstractTemplateEnginePlugin extends Plugin{
 	}
 	
 	@Override
-	public void init(Config config) {
-		String viewAbsolutePath = config.getString(MVCParameters.view_absolute_path);
+	public void init(Storage config) {
+		String viewAbsolutePath = config.getString(MVCParamNames.view_absolute_path);
 		init(viewAbsolutePath);
 	}
 	

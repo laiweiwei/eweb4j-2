@@ -1,7 +1,6 @@
 package com.eweb4j.core;
 
-import com.eweb4j.core.plugin.Plugins;
-import com.eweb4j.core.plugin.PluginsMgr;
+import com.eweb4j.core.plugin.PluginManager;
 
 
 /**
@@ -11,10 +10,14 @@ import com.eweb4j.core.plugin.PluginsMgr;
  */
 public class EWeb4J {
 
-	public final Plugins pluginMgr = new PluginsMgr();
+	public PluginManager pluginManager = null;
 	
-	public static EWeb4J me() {
-		return new EWeb4J();
+	public EWeb4J(PluginManager pluginManager) {
+		this.pluginManager = pluginManager;
+	}
+	
+	public void setPluginManager(PluginManager pluginManager){
+		this.pluginManager = pluginManager;
 	}
 	
 	/**
@@ -23,7 +26,7 @@ public class EWeb4J {
 	 * @param listener
 	 */
 	public final EWeb4J startup(final Listener listener) {
-		listener.onStartup(pluginMgr);
+		listener.onStartup(pluginManager);
 		
 		return this;
 	}
@@ -34,16 +37,16 @@ public class EWeb4J {
 	 * @param listener
 	 */
 	public final EWeb4J shutdown(final Listener listener) {
-		listener.onShutdown(pluginMgr);
+		listener.onShutdown(pluginManager);
 		
 		return this;
 	}
 	
 	public static interface Listener {
 		
-		public void onStartup(Plugins plugins);
+		public void onStartup(PluginManager plugins);
 		
-		public void onShutdown(Plugins plugins);
+		public void onShutdown(PluginManager plugins);
 		
 	}
 }

@@ -2,9 +2,8 @@ package com.eweb4j.orm.config;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.eweb4j.core.configurator.Storage;
 import com.eweb4j.orm.helper.JPALib;
 import com.eweb4j.orm.helper.JPAReader;
 import com.eweb4j.utils.CommonUtil;
@@ -17,18 +16,22 @@ import com.eweb4j.utils.ReflectUtil;
  */
 public class JPAScanner{
 	
-	private final static Map<String, JPAClassInfo> cache = new HashMap<String, JPAClassInfo>(); 
+	private Storage<String, JPAClassInfo> cache = null; 
 	
-	public synchronized final static void clear(){
+	public JPAScanner(Storage<String, JPAClassInfo> cache) {
+		this.cache = cache;
+	}
+	
+	public final void clear(){
 		cache.clear();
 	}
 	
 	/**
 	 * 加载Entity类的JPA注解信息 
 	 * @date 2013-6-13 下午03:09:21
-	 * @param entityClassName
+	 * @param entityClass
 	 */
-	public synchronized final static JPAClassInfo scan(Class<?> entityClass) {
+	public final JPAClassInfo scan(Class<?> entityClass) {
 		if (entityClass == null) return null;
 		
 		if (cache.containsKey(entityClass.getName()))
