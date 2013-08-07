@@ -1,5 +1,9 @@
 package com.eweb4j.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 
 
@@ -9,8 +13,14 @@ import com.eweb4j.core.plugin.PluginManager;
  * @date 2013-6-13 上午11:00:39
  */
 public class EWeb4J {
-
-	public PluginManager pluginManager = null;
+	
+	private PluginManager pluginManager = null;
+	private List<Listener> listeners = new ArrayList<Listener>();
+	private List<Plugin> plugins = new ArrayList<Plugin>();
+	
+	public EWeb4J(){
+		
+	}
 	
 	public EWeb4J(PluginManager pluginManager) {
 		this.pluginManager = pluginManager;
@@ -20,13 +30,27 @@ public class EWeb4J {
 		this.pluginManager = pluginManager;
 	}
 	
+	public void addListener(Listener listener){
+		this.listeners.add(listener);
+	}
+	
+	public void addPlugin(Plugin plugin) {
+		this.plugins.add(plugin);
+	}
+	
 	/**
 	 * 启动框架
 	 * @date 2013-6-13 上午11:55:02
 	 * @param listener
 	 */
-	public final EWeb4J startup(final Listener listener) {
-		listener.onStartup(pluginManager);
+	public final EWeb4J startup() {
+		for (Plugin plugin : this.plugins){
+			this.pluginManager.install(plugin);
+		}
+		
+		for (Listener listener : this.listeners) {
+			listener.onStartup(this.pluginManager);
+		}
 		
 		return this;
 	}
@@ -36,8 +60,12 @@ public class EWeb4J {
 	 * @date 2013-6-29 上午12:47:50
 	 * @param listener
 	 */
-	public final EWeb4J shutdown(final Listener listener) {
-		listener.onShutdown(pluginManager);
+	public final EWeb4J shutdown() {
+		for (Listener listener : this.listeners) {
+			listener.onShutdown(this.pluginManager);
+		}
+		
+		this.pluginManager.stopAll();
 		
 		return this;
 	}
@@ -54,4 +82,25 @@ public class EWeb4J {
 		/*默认的数据源*/
 		String DEFAULT_DATA_SOURCE = "DEFAULT_DATA_SOURCE";
 	}
+
+	public List<Listener> getListeners() {
+		return listeners;
+	}
+
+	public void setListeners(List<Listener> listeners) {
+		this.listeners = listeners;
+	}
+
+	public List<Plugin> getPlugins() {
+		return plugins;
+	}
+
+	public void setPlugins(List<Plugin> plugins) {
+		this.plugins = plugins;
+	}
+
+	public PluginManager getPluginManager() {
+		return pluginManager;
+	}
+	
 }
