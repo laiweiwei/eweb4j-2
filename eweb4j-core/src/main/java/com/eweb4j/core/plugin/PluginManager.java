@@ -1,6 +1,7 @@
 package com.eweb4j.core.plugin;
 
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.Configuration;
+import com.eweb4j.core.configuration.ConfigurationFactory;
 
 
 /**
@@ -11,16 +12,16 @@ import com.eweb4j.core.configurator.Storage;
 public abstract class PluginManager {
 
 	/**
-	 * 获取配置仓库
+	 * 获取配置工厂实例
 	 * @return
 	 */
-	public abstract Storage<String, Object> getConfigStorage();
+	public abstract ConfigurationFactory getConfigurationFactory();
 	
 	/**
 	 * 获取插件仓库
 	 * @return
 	 */
-	public abstract Storage<String, Plugin> getPluginStorage();
+	public abstract Configuration<String, Plugin> getPlugins();
 	
 	/**
 	 * 获取指定插件

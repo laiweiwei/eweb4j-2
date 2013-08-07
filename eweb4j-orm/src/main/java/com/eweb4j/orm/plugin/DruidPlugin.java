@@ -3,7 +3,7 @@ package com.eweb4j.orm.plugin;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.Configuration;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.eweb4j.core.plugin.Plugin;
@@ -19,7 +19,7 @@ public class DruidPlugin extends Plugin{
 
 	public final static List<String> DS_NAMES = new ArrayList<String>();
 	
-	public void init(Storage config){
+	public void init(Configuration config){
 		
 	}
 	

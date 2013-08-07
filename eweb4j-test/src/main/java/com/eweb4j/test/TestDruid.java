@@ -6,9 +6,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.eweb4j.jdbc.JDBCColumn;
-import com.eweb4j.jdbc.JDBCHelper;
-import com.eweb4j.jdbc.JDBCRow;
+import com.eweb4j.core.jdbc.JDBCColumn;
+import com.eweb4j.core.jdbc.JDBCHelper;
+import com.eweb4j.core.jdbc.JDBCRow;
 
 /**
  * TODO

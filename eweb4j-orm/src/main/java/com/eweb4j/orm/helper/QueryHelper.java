@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.eweb4j.jdbc.JDBCHelper;
-import com.eweb4j.jdbc.JDBCRow;
-import com.eweb4j.jdbc.config.DSPool;
+import com.eweb4j.core.jdbc.JDBCHelper;
+import com.eweb4j.core.jdbc.JDBCRow;
+import com.eweb4j.core.jdbc.DSPool;
 import com.eweb4j.orm.PojoMappings;
 import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAScanner;

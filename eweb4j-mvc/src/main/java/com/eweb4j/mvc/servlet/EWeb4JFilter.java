@@ -16,8 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.configurator.MapStorage;
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.Configuration;
+import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
+import com.eweb4j.core.configuration.MapConfiguration;
+import com.eweb4j.core.configuration.PropertiesConfiguration;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
@@ -53,14 +56,9 @@ public class EWeb4JFilter implements Filter{
 		this.servletContext = cfg.getServletContext();
 		//网站根目录
 		this.root_path = this.cfg.getInitParameter("root_path");
-		if (null == this.root_path || 0 == this.root_path.trim().length()) {
+		if (null == this.root_path || 0 == this.root_path.trim().length()) 
 			this.root_path = this.servletContext.getRealPath("/");
-//			int idx = class_path.indexOf("WEB-INF");
-//			if (idx < 0)
-//				throw new RuntimeException("illegal class_path->"+class_path);
-			
-//			this.root_path = class_path.substring(0, idx+1);
-		}
+		
 		System.out.println("----------- ROOT_PATH -----------");
 		System.out.println("----------- "+this.root_path+" -----------");
 		
@@ -80,11 +78,16 @@ public class EWeb4JFilter implements Filter{
 		
 		
 		//构建配置容器
-		final Storage<String, Plugin> pluginStorage = new MapStorage<String, Plugin>();
-		final Storage<String, Object> configStorage = new MapStorage<String, Object>();
+		final Configuration<String, Plugin> pluginStorage = new MapConfiguration<String, Plugin>();
+		//构建配置工厂实例
+		Configuration<String, String> contextConfig = new MapConfiguration<String, String>();
+		contextConfig.put("root_path", this.root_path);
+		contextConfig.put("view_path", this.view_path);
+		contextConfig.put("controller_package", this.controller_package);
+		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl(contextConfig, "eweb4j-config.xml");
 		
 		//构建插件管理器
-		final PluginManager pluginManager = new PluginManagerImpl(pluginStorage, configStorage);
+		final PluginManager pluginManager = new PluginManagerImpl(pluginStorage, configFactory);
 		
 		//构建框架实例
 		eweb4j = new EWeb4J(pluginManager);
@@ -93,8 +96,8 @@ public class EWeb4JFilter implements Filter{
 		eweb4j_listener = new EWeb4J.Listener() {
 			public void onStartup(PluginManager plugins) {
 				//配置一些参数
-				plugins.getConfigStorage().put(MVCParamNames.view_absolute_path, root_path + view_path);
-				plugins.getConfigStorage().put(MVCParamNames.view_relative_path, view_path);
+				plugins.getConfigurationFactory().getConfiguration().put(MVCParamNames.view_absolute_path, root_path + view_path);
+				plugins.getConfigurationFactory().getConfiguration().put(MVCParamNames.view_relative_path, view_path);
 				
 				//默认模板引擎使用JSP
 				//安装JSP模板引擎插件

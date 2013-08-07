@@ -3,8 +3,8 @@ package com.eweb4j.test;
 import java.util.List;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.configurator.Storage;
-import com.eweb4j.core.configurator.MapStorage;
+import com.eweb4j.core.configuration.PropertiesConfiguration;
+import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
@@ -39,9 +39,9 @@ public class TestORMPlugin {
 		};
 		
 		//构建插件仓库
-		final Storage<String, Plugin> pluginStorage = new MapStorage<String, Plugin>();
+		final Configuration<String, Plugin> pluginStorage = new PropertiesConfiguration<String, Plugin>();
 		//构建配置仓库
-		final Storage<String, Object> configStorage = new MapStorage<String, Object>();
+		final Configuration<String, Object> configStorage = new PropertiesConfiguration<String, Object>();
 		//构建插件管理器
 		final PluginManager pluginManager = new PluginManagerImpl(pluginStorage, configStorage);
 		//构建框架实例

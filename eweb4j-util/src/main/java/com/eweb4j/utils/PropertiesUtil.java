@@ -1,6 +1,7 @@
 package com.eweb4j.utils;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,49 +9,47 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Properties Util
+ * <p></p>
  * @author weiwei l.weiwei@163.com
- * @date 2013-6-13 下午05:54:00
  */
 public class PropertiesUtil {
 
-	private Map<String, String> map = new HashMap<String, String>();
+	private final static Map<String, Map<String, String>> maps = new HashMap<String, Map<String, String>>();
+	private final static Map<String, Long> fileLastModified = new HashMap<String, Long>();
 	
-	public final Set<String> keySet(){
-		return map.keySet();
+	public final static String getString(String fileName, String key){
+		return getString(fileName, key, null);
 	}
-	
-	public final Number getNumber(String name){
-		String val = map.get(name);
-		if (!CommonUtil.isBlank(val)) 
-			return CommonUtil.toDouble(val);
+	public final static String getString(String fileName, String key, String defaultValue){
+		String path = PropertiesUtil.class.getResource("/").getFile();
+		File file = new File(path + File.separator + fileName + ".properties");
+		if (!file.exists())
+			return defaultValue;
+		Long lastMod = fileLastModified.get(fileName);
+		Long fileLastMod = file.lastModified();
+		if (lastMod == null || lastMod < fileLastMod){
+			loadFile(fileName, file.getAbsolutePath());
+			fileLastModified.put(fileName, fileLastMod);
+		}
 		
-		return null;
-	}
-	
-	public final Boolean getBoolean(String name){
-		String val = map.get(name);
-		if (!CommonUtil.isBlank(val)) 
-			return CommonUtil.toBoolean(val);
+		Map<String, String> map = maps.get(fileName);
+		if (map == null) return defaultValue;
 		
-		return null;
+		String val = map.get(key);
+		return val == null ? defaultValue : val;
 	}
 	
-	public final String getStr(String name){
-		return map.get(name);
-	}
-	
-	public final PropertiesUtil loadFile(String filePath) {
+	private final static void loadFile(String fileName, String abPath) {
 		InputStream in = null;
 		try {
-			in = new BufferedInputStream(new FileInputStream(filePath));
+			File file = new File(abPath);
+			in = new BufferedInputStream(new FileInputStream(file));
 			Properties properties = new Properties();
 			properties.load(in);
 			
-			//第一遍全部加进来
 			Enumeration<?> en = properties.propertyNames();
 			while (en.hasMoreElements()) {
 				String key = (String) en.nextElement();
@@ -61,6 +60,13 @@ public class PropertiesUtil {
 				if (!property.matches(RegexList.has_chinese_regexp)) {
 					property = new String(property.getBytes("ISO-8859-1"), "UTF-8");
 				}
+				
+				Map<String, String> map = maps.get(fileName);
+				if (map == null) {
+					map = new HashMap<String, String>();
+					maps.put(fileName, map);
+				}
+				
 				map.put(key, property);
 			}
 			
@@ -75,8 +81,12 @@ public class PropertiesUtil {
 				}
 			}
 		}
-		
-		return this;
 	}
 	
+	public static void main(String[] args) throws InterruptedException {
+		while (true) {
+			System.out.println(PropertiesUtil.getString("qhee-api", "zbus.enabled"));
+			Thread.sleep(5*1000);
+		}
+	}
 }

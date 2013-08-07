@@ -49,4 +49,9 @@ public class EWeb4J {
 		public void onShutdown(PluginManager plugins);
 		
 	}
+	
+	public static interface Configs {
+		/*默认的数据源*/
+		String DEFAULT_DATA_SOURCE = "DEFAULT_DATA_SOURCE";
+	}
 }

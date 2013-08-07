@@ -2,8 +2,8 @@ package com.eweb4j.orm.plugin;
 
 import java.util.List;
 
-import com.eweb4j.core.configurator.MapStorage;
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.PropertiesConfiguration;
+import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAScanner;
@@ -16,7 +16,7 @@ import com.eweb4j.orm.config.JPAScanner;
 public class ORMPlugin extends Plugin{
 
 	private JPAScanner scanner = null;
-	private Storage<String, Object> config = null;
+	private Configuration<String, Object> config = null;
 	
 	public String ID() {
 		return "EWeb4J-ORM";
@@ -31,10 +31,10 @@ public class ORMPlugin extends Plugin{
 	}
 
 	@Override
-	public void init(Storage<String, Object> config) {
+	public void init(Configuration<String, Object> config) {
 		this.config = config;
 		//构建JPA实体类配置信息存放容器
-		Storage<String, JPAClassInfo> jpaStorage = new MapStorage<String, JPAClassInfo>();
+		Configuration<String, JPAClassInfo> jpaStorage = new PropertiesConfiguration<String, JPAClassInfo>();
 		this.config.put(JPAClassInfo.STORAGE_KEY, jpaStorage);
 		
 		//构建JPA扫描器

@@ -3,7 +3,7 @@ package com.eweb4j.orm.config;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.orm.helper.JPALib;
 import com.eweb4j.orm.helper.JPAReader;
 import com.eweb4j.utils.CommonUtil;
@@ -16,9 +16,9 @@ import com.eweb4j.utils.ReflectUtil;
  */
 public class JPAScanner{
 	
-	private Storage<String, JPAClassInfo> cache = null; 
+	private Configuration<String, JPAClassInfo> cache = null; 
 	
-	public JPAScanner(Storage<String, JPAClassInfo> cache) {
+	public JPAScanner(Configuration<String, JPAClassInfo> cache) {
 		this.cache = cache;
 	}
 	

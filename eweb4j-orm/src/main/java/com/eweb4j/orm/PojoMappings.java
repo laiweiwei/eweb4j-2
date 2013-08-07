@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.eweb4j.jdbc.JDBCRow;
+import com.eweb4j.core.jdbc.JDBCRow;
 import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAScanner;
 import com.eweb4j.orm.config.JPAFieldInfo;
@@ -20,7 +20,7 @@ public class PojoMappings {
 			return null;
 		
 		List<T> list = new ArrayList<T>();
-		JPAClassInfo jpaInfo = JPAScanner.scan(cls);
+		JPAClassInfo jpaInfo = JPAScanner.class(cls);
 		T t = null;
 		for (JDBCRow row : rows) {
 			try {

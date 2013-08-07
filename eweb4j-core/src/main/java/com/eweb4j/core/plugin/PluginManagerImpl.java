@@ -1,6 +1,7 @@
 package com.eweb4j.core.plugin;
 
-import com.eweb4j.core.configurator.Storage;
+import com.eweb4j.core.configuration.Configuration;
+import com.eweb4j.core.configuration.ConfigurationFactory;
 
 /**
  * 插件管理器
@@ -12,12 +13,12 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 插件仓库
 	 */
-	protected Storage<String, Plugin> pluginStorage = null;
+	protected Configuration<String, Plugin> plugins = null;
 	
 	/**
-	 * 配置仓库
+	 * 配置工厂实例
 	 */
-	protected Storage<String, Object> configStorage = null; 
+	protected ConfigurationFactory configurationFactory = null; 
 	
 	/**
 	 * 无参构造器
@@ -27,41 +28,41 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 有参构造器
 	 * @param pluginsStorage 插件仓库
-	 * @param config 配置仓库
+	 * @param config 配置工厂实例
 	 */
-	public PluginManagerImpl(Storage<String, Plugin> pluginStorage, Storage<String, Object> configStorage){
-		this.setPluginStorage(pluginStorage);
-		this.setConfigStorage(configStorage);
+	public PluginManagerImpl(Configuration<String, Plugin> plugins, ConfigurationFactory configFactory){
+		this.setPlugins(plugins);
+		this.setConfigurationFactory(configFactory);
 	}
 	
 	/**
 	 * 获取插件仓库实例
 	 */
-	public Storage<String, Plugin> getPluginStorage() {
-		return pluginStorage;
+	public Configuration<String, Plugin> getPlugins() {
+		return plugins;
 	}
 
 	/**
 	 * 注入插件仓库实例
-	 * @param pluginStorage
+	 * @param plugins
 	 */
-	public void setPluginStorage(Storage<String, Plugin> pluginStorage) {
-		this.pluginStorage = pluginStorage;
+	public void setPlugins(Configuration<String, Plugin> plugins) {
+		this.plugins = plugins;
 	}
 
 	/**
 	 * 获取配置仓库实例
 	 */
-	public Storage<String, Object> getConfigStorage() {
-		return configStorage;
+	public ConfigurationFactory getConfigurationFactory() {
+		return this.configurationFactory;
 	}
 
 	/**
 	 * 注入配置仓库实例
-	 * @param configStorage
+	 * @param configs
 	 */
-	public void setConfigStorage(Storage<String, Object> configStorage) {
-		this.configStorage = configStorage;
+	public void setConfigurationFactory(ConfigurationFactory configurationFactory) {
+		this.configurationFactory = configurationFactory;
 	}
 
 	/**
@@ -71,21 +72,21 @@ public class PluginManagerImpl extends PluginManager{
 	 * @return
 	 */
 	public Plugin getPlugin(String id) {
-		return this.pluginStorage == null ? null : this.pluginStorage.get(id);
+		return this.plugins == null ? null : this.plugins.get(id);
 	}
 	
 	/**
 	 * 安装插件
 	 */
 	public boolean install(Plugin plugin) {
-		if (this.pluginStorage.containsKey(plugin.ID()))
+		if (this.plugins.containsKey(plugin.ID()))
 			return true;
 		
 //		plugin.setConfigs(super.configs);
 		
 		//初始化插件
 		try {
-			plugin.init(this.configStorage);
+			plugin.init(this.configurationFactory);
 		} catch (Throwable e) {
 			throw new RuntimeException("plugin->" + plugin.ID() + " init failed.", e);
 		}
@@ -98,7 +99,7 @@ public class PluginManagerImpl extends PluginManager{
 		}
 		
 		//注册插件ID到仓库中
-		this.pluginStorage.put(plugin.ID(), plugin);
+		this.plugins.put(plugin.ID(), plugin);
 		
 		//TODO: 使用监听器代替
 		System.out.println("plugin->"+plugin.ID()+" install success.");
@@ -118,7 +119,7 @@ public class PluginManagerImpl extends PluginManager{
 		}
 		
 		//从仓库中去除
-		this.pluginStorage.remove(plugin.ID());
+		this.plugins.remove(plugin.ID());
 		
 		//TODO: 使用监听器代替
 		System.out.println("plugin->"+plugin.ID()+" uninstall success.");
@@ -145,8 +146,8 @@ public class PluginManagerImpl extends PluginManager{
 	 * 停止所有插件
 	 */
 	public boolean stopAll() {
-		while (this.pluginStorage.hasNext()) {
-			Plugin plugin = this.pluginStorage.next();
+		while (this.plugins.hasNext()) {
+			Plugin plugin = this.plugins.next();
 			uninstall(plugin);
 		}
 		
