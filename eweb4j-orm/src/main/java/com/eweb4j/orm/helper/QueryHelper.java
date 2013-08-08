@@ -26,35 +26,39 @@ public class QueryHelper<T> {
 	private DataSource dataSource = null;
 	private ConfigurationFactory configFactory = null;
 	private PojoMappings<T> pojoMappings = null;
-	private ReflectUtil ru = null;
-	private T model = null;
+	private ReflectUtil reflectUtil = null;
 	private Class<T> cls = null;
+	private T pojo = null;
 	private String alias = "";
 	private HashMap<String, String> joins = new HashMap<String, String>();
 
 	@SuppressWarnings("unchecked")
-	public QueryHelper(T model, ConfigurationFactory configFactory){
+	public QueryHelper(T pojo, ConfigurationFactory configFactory){
 		this.configFactory = configFactory;
-		this.cls = (Class<T>) model.getClass();
+		this.cls = (Class<T>) pojo.getClass();
 		this.pojoMappings = new PojoMappings<T>(cls, configFactory);
 		this.dataSource = configFactory.getDefaultDataSource();
 		
-		this.model = model;
-		this.ru = new ReflectUtil(this.model);
+		this.pojo = pojo;
+		this.reflectUtil = new ReflectUtil(this.pojo);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public QueryHelper(Class<T> cls, ConfigurationFactory configFactory){
 		this.configFactory = configFactory;
+		this.cls = cls;
 		this.pojoMappings = new PojoMappings<T>(cls, configFactory);
 		this.dataSource = configFactory.getDefaultDataSource();
-		this.cls = cls;
-		try {
-			this.model = cls.newInstance();
-		} catch (Throwable e) {
-			e.printStackTrace();
-		} 
-		
-		this.ru = new ReflectUtil(this.model);
+		this.reflectUtil = new ReflectUtil(this.cls);
+		this.pojo = (T) this.reflectUtil.getObject(); 
+	}
+	
+	public T getPojo(){
+		return this.pojo;
+	}
+	
+	public ConfigurationFactory getConfigFactory(){
+		return this.configFactory;
 	}
 	
 	public QueryHelper<T> alias(String alias) {
@@ -71,7 +75,7 @@ public class QueryHelper<T> {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		
-		String sql = fmtSql(cls, ru, alias, joins, eql, args);
+		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);
 		List<JDBCRow> rows = JDBCHelper.find(dataSource, sql, args.toArray());
 		
 		List<T> list = this.pojoMappings.mapping(rows);
@@ -81,7 +85,7 @@ public class QueryHelper<T> {
 	public List<T> query(String eql, Object... _args) {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
-		String sql = fmtSql(cls, ru, alias, joins, eql, args);
+		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);
 		List<JDBCRow> rows = JDBCHelper.find(dataSource, sql, args.toArray());
 		
 		return this.pojoMappings.mapping(rows);
@@ -91,7 +95,7 @@ public class QueryHelper<T> {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		
-		String sql = fmtSql(cls, ru, alias, joins, eql, args);
+		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);
 		return JDBCHelper.execute(dataSource, sql, args.toArray());
 	}
 
@@ -117,11 +121,11 @@ public class QueryHelper<T> {
 		List<Object> _args = new ArrayList<Object>();
 		for (JPAFieldInfo f : jpa.fieldInfos) {
 			sql = sql.replace("#" + alias + f.name, alias + f.column);
-			Method getter = this.ru.getGetter(f.name);
+			Method getter = this.reflectUtil.getGetter(f.name);
 			if (sql.contains("#columns") && sql.contains("#values")) {
 				if (f.name.equals(jpa.id)) continue;
 				try {
-					Object val = getter.invoke(this.ru.getObject());
+					Object val = getter.invoke(this.reflectUtil.getObject());
 					String dataType = f.dataType;
 					if (JoinType.ONE_2_ONE.toString().equalsIgnoreCase(dataType) || JoinType.MANY_2_ONE.toString().equalsIgnoreCase(dataType)) {
 						String relCol = f.relCol;
@@ -166,6 +170,18 @@ public class QueryHelper<T> {
 		}
 		
 		return sql;
+	}
+
+	public DataSource getDataSource() {
+		return dataSource;
+	}
+
+	public PojoMappings<T> getPojoMappings() {
+		return pojoMappings;
+	}
+
+	public ReflectUtil getReflectUtil() {
+		return reflectUtil;
 	}
 
 }

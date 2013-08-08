@@ -32,7 +32,7 @@ public abstract class Plugin {
 	
 	/**
 	 * 初始化插件
-	 * @param eweb4j 框架实例
+	 * @param configFactory
 	 * @return
 	 */
 	public abstract void init(ConfigurationFactory configFactory);

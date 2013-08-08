@@ -38,7 +38,6 @@
 			<artifactId>persistence-api</artifactId>
 			<version>1.0</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>com.eweb4j</groupId>
 			<artifactId>eweb4j-plugins-druid</artifactId>
