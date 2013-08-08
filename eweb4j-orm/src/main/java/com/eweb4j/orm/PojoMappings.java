@@ -5,22 +5,30 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.jdbc.JDBCRow;
 import com.eweb4j.orm.config.JPAClassInfo;
-import com.eweb4j.orm.config.JPAScanner;
 import com.eweb4j.orm.config.JPAFieldInfo;
 import com.eweb4j.orm.config.JoinType;
 import com.eweb4j.utils.ClassUtil;
 import com.eweb4j.utils.ReflectUtil;
 
-public class PojoMappings {
+public class PojoMappings<T> {
 
-	public static <T> List<T> mapping(List<JDBCRow> rows, Class<T> cls) {
+	private Class<T> cls;
+	private ConfigurationFactory configFactory = null;
+	
+	public PojoMappings(Class<T> cls, ConfigurationFactory configFactory){
+		this.cls = cls;
+		this.configFactory = configFactory;
+	}
+	
+	public List<T> mapping(List<JDBCRow> rows) {
 		if (rows == null || rows.isEmpty()) 
 			return null;
 		
+		JPAClassInfo jpaInfo = this.configFactory.getJPA(cls);
 		List<T> list = new ArrayList<T>();
-		JPAClassInfo jpaInfo = JPAScanner.class(cls);
 		T t = null;
 		for (JDBCRow row : rows) {
 			try {
@@ -98,7 +106,7 @@ public class PojoMappings {
 						Field field = ru.getField(fieldName);
 						Class<?> tarClass = field.getType();
 						Object tarObj = tarClass.newInstance();
-						JPAClassInfo tarJpa = JPAScanner.scan(tarClass);
+						JPAClassInfo tarJpa = this.configFactory.getJPA(tarClass);
 						String relField = null;
 						if (relCol == null || relCol.trim().length() == 0){
 							relCol = tarJpa.idCol;

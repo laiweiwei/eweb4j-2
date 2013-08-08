@@ -8,6 +8,8 @@ public class Property {
 	private String name;
 	@Attribute
 	private String value;
+	@Attribute(required=false)
+	private int isArray;
 
 	public String getName() {
 		return name;
@@ -25,9 +27,18 @@ public class Property {
 		this.value = value;
 	}
 
+	public int getIsArray() {
+		return isArray;
+	}
+
+	public void setIsArray(int isArray) {
+		this.isArray = isArray;
+	}
+
 	@Override
 	public String toString() {
-		return "Property [name=" + name + ", value=" + value + "]";
+		return "Property [name=" + name + ", value=" + value + ", isArray="
+				+ isArray + "]";
 	}
-	
+
 }

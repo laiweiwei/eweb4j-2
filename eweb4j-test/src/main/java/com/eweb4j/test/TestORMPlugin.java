@@ -1,18 +1,14 @@
 package com.eweb4j.test;
 
-import java.util.List;
-
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.configuration.PropertiesConfiguration;
-import com.eweb4j.core.configuration.Configuration;
-import com.eweb4j.core.plugin.Plugin;
+import com.eweb4j.core.EWeb4JImpl;
+import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
-import com.eweb4j.jdbc.config.DSBean;
-import com.eweb4j.jdbc.config.DSPool;
-import com.eweb4j.orm.helper.Db;
-import com.eweb4j.orm.plugin.DruidPlugin;
+import com.eweb4j.orm.helper.QueryHelper;
 import com.eweb4j.orm.plugin.ORMPlugin;
+import com.eweb4j.plugins.DruidPlugin;
 
 /**
  * 测试ORM插件功能
@@ -23,76 +19,50 @@ public class TestORMPlugin {
 
 	public static void main(String[] args) throws Exception{
 		
-		//准备好监听器
-		EWeb4J.Listener listener = new EWeb4J.Listener() {
-			public void onStartup(PluginManager pluginManager) {
-				//安装 ORM 插件
-				pluginManager.install(new ORMPlugin());
-				//安装 druid 插件
-				pluginManager.install(new DruidPlugin());
-			}
-			
-			public void onShutdown(PluginManager plugins){
-				//停止所有插件
-				plugins.stopAll();
-			}
-		};
+		//构建配置工厂实例
+		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl("src/main/resources/eweb4j-config.xml");
 		
-		//构建插件仓库
-		final Configuration<String, Plugin> pluginStorage = new PropertiesConfiguration<String, Plugin>();
-		//构建配置仓库
-		final Configuration<String, Object> configStorage = new PropertiesConfiguration<String, Object>();
 		//构建插件管理器
-		final PluginManager pluginManager = new PluginManagerImpl(pluginStorage, configStorage);
+		final PluginManager pluginManager = new PluginManagerImpl(configFactory);
+		
 		//构建框架实例
-		EWeb4J eweb4j = new EWeb4J(pluginManager);
-		//启动框架
-		eweb4j.startup(listener);
+		EWeb4J eweb4j = new EWeb4JImpl(pluginManager);
 		
-		DSBean dsBean = DSPool.first();
-		System.out.println("first ds->"+dsBean.name);
+		//添加ORM插件
+		eweb4j.addPlugin(new ORMPlugin());
 		
-//		final String eql = "select * from #table where #nickname = ?";
-//		List<Pets> pets = Db.ar(Pets.class).query(eql, "testName");
+		//安装 DRUID 插件
+		eweb4j.addPlugin(new DruidPlugin());
+		
+		//准备完毕，启动框架
+		eweb4j.startup();
+		
+		Pets p = new Pets();
+		p.setNickname("小黄2");
+		p.setNumber("95278");
+		p.setAge(8);
+		QueryHelper<Pets> db = new QueryHelper<Pets>(p, configFactory);
+		
+		Number number = db.update("insert into #table(#columns) values(#values)");
+		System.out.println("insert->"+number);
+		
+//		List<Pets> pets = db.query("select * from #table where #nickname = ?", "testName");
+//		System.out.println("pet->"+pets);
+//		
+//		pets = db.alias("p").join("user", "u")
+//			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
+//		
 //		System.out.println("pet->"+pets);
 		
-		List<Pets> pets = 
-			Db.ar(Pets.class)
-			    .alias("p")
-			    .join("user", "u")
-			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
-		System.out.println("pet->"+pets);
-//		//获取数据源 ds_1
-//		DataSource ds1 = DSPool.get("ds_1").ds;
-//		int r = JDBCHelper.execute(ds1, "update t_pet set create_at = ? where id = ?", new Date(), 29);
-//		System.out.println("update rows->"+r);
-//		
-//		List<JDBCRow> rows = JDBCHelper.find(ds1, "select * from t_pet");
-//		for (JDBCRow row : rows) {
-//			int num = row.number();
-//			System.out.println("r->" + num);
-//			for (JDBCColumn col : row.columns()){
-//				System.out.println("\t"+col);
-//			}
-//		}
-//		
-//		int[] rr = JDBCHelper.batchExecute(ds1, "insert into t_pet(name, age) values(?,?)", new Object[][]{new Object[]{1,2}, new Object[]{1,2}});
-//		for (int n : rr)
-//			System.out.println("after insert, id->"+n);
-//		
-//		r = JDBCHelper.execute(ds1, "delete from t_pet where name = ? and age = ?", 1, 2);
-//		System.out.println("delete rows->"+r);
-//		
-//		//获取数据源 ds_2
-//		DataSource ds2 = DSPool.get("ds_2").ds;
-//		JDBCRow user = JDBCHelper.findOne(ds2, "select * from t_user");
-//		System.out.println("user->" + user.number());
-//		for (JDBCColumn col : user.columns()){
-//			System.out.println("\t"+col);
-//		}
+		System.out.println();
 		
 		//停止框架
-		eweb4j.shutdown(listener);
+		for (int i = 10; i > 0; i--){
+			System.out.println("还有 " + i + " 秒就清空数据");
+			Thread.sleep(1*1000);
+		}
+		
+		eweb4j.shutdown();
 	}
 	
 }

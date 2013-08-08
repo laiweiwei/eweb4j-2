@@ -156,7 +156,7 @@ public class MapConfiguration<K, V> implements Configuration<K, V>{
 
 	public String getString(K key) {
 		try {
-			return getString(key);
+			return getString(key, null);
 		} catch (Throwable e){
 			
 		}
@@ -281,8 +281,28 @@ public class MapConfiguration<K, V> implements Configuration<K, V>{
 		return list;
 	}
 
-	public Map<K, V> toMap() {
+	public Map<K, V> getMap() {
 		return this.values;
+	}
+
+	public List<Double> getListDouble(K key) {
+		return getListDouble(key, ",");
+	}
+
+	public List<Float> getListFloat(K key) {
+		return getListFloat(key, ",");
+	}
+
+	public List<Long> getListLong(K key) {
+		return getListLong(key, ",");
+	}
+
+	public List<Integer> getListInteger(K key) {
+		return getListInteger(key, ",");
+	}
+
+	public List<String> getListString(K key) {
+		return getListString(key, ",");
 	}
 
 }

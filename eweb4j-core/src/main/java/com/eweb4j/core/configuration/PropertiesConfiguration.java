@@ -26,12 +26,13 @@ public class PropertiesConfiguration implements Configuration<String, String>{
 	
 	public PropertiesConfiguration(String filePath) throws Throwable{
 		this.filePath = filePath;
+		this._load_file();
 	}
 	
-	private final void _load_file(String fileName, String abPath) throws Throwable {
+	private final void _load_file() throws Throwable {
 		InputStream in = null;
 		try {
-			File file = new File(abPath);
+			File file = new File(filePath);
 			in = new BufferedInputStream(new FileInputStream(file));
 			Properties properties = new Properties();
 			properties.load(in);
@@ -64,14 +65,14 @@ public class PropertiesConfiguration implements Configuration<String, String>{
 	}
 	
 	private final String _get(String key, String defaultValue) throws Throwable {
-		String path = getClass().getResource("/").getFile();
-		File file = new File(path + File.separator + filePath + ".properties");
+		File file = new File(filePath);
 		if (!file.exists())
 			return defaultValue;
+		
 		Long lastMod = this.fileLastModified.get(filePath);
 		Long fileLastMod = file.lastModified();
 		if (lastMod == null || lastMod < fileLastMod){
-			this._load_file(filePath, file.getAbsolutePath());
+			this._load_file();
 			this.fileLastModified.put(filePath, fileLastMod);
 		}
 		
@@ -337,8 +338,33 @@ public class PropertiesConfiguration implements Configuration<String, String>{
 		return list;
 	}
 
-	public Map<String, String> toMap() {
+	public Map<String, String> getMap() {
 		return this.values;
 	}
 
+	public List<Double> getListDouble(String key) {
+		return getListDouble(key, ",");
+	}
+
+	public List<Float> getListFloat(String key) {
+		return getListFloat(key, ",");
+	}
+
+	public List<Long> getListLong(String key) {
+		return getListLong(key, ",");
+	}
+
+	public List<Integer> getListInteger(String key) {
+		return getListInteger(key, ",");
+	}
+
+	public List<String> getListString(String key) {
+		return getListString(key, ",");
+	}
+	
+	public static void main(String[] args) throws Throwable{
+		String filePath = "resources/db.properties";
+		Configuration<String, String> config = new PropertiesConfiguration(filePath);
+		System.out.println(config.getMap());
+	}
 }

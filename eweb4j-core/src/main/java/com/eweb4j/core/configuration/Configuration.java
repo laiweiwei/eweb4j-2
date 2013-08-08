@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public interface Configuration<K, V> {
 
-	public Map<K, V> toMap();
+	public Map<K, V> getMap();
 	
 	public void put(K key, V value);
 	
@@ -35,6 +35,16 @@ public interface Configuration<K, V> {
 	public List<Integer> getListInteger(K key, String split) ;
 	
 	public List<String> getListString(K key, String split) ;
+	
+	public List<Double> getListDouble(K key) ;
+	
+	public List<Float> getListFloat(K key) ;
+	
+	public List<Long> getListLong(K key) ;
+	
+	public List<Integer> getListInteger(K key) ;
+	
+	public List<String> getListString(K key) ;
 	
 	public String getString(K key, String defaultVal);
 	

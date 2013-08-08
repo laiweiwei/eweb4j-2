@@ -2,7 +2,6 @@ package com.eweb4j.mvc.plugin;
 
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.plugin.Plugin;
-import com.eweb4j.mvc.view.MVCParamNames;
 import com.eweb4j.mvc.view.TemplateEngine;
 import com.eweb4j.mvc.view.TemplateEngineBuilder;
 import com.eweb4j.mvc.view.TemplateEngineBuilders;
@@ -16,7 +15,7 @@ public abstract class AbstractTemplateEnginePlugin extends Plugin{
 
 	public abstract String engine_key();
 	
-	public abstract void init(String viewAbsolutePath);
+	public abstract void init(String absolutePathOfView);
 	
 	public abstract TemplateEngine templateEngine();
 	
@@ -32,8 +31,8 @@ public abstract class AbstractTemplateEnginePlugin extends Plugin{
 	
 	@Override
 	public void init(ConfigurationFactory configFactory) {
-		String viewAbsolutePath = configFactory.getConfiguration().getString(MVCParamNames.view_absolute_path);
-		init(viewAbsolutePath);
+		String absolutePathOfView = configFactory.getAbsolutePathOfView();
+		init(absolutePathOfView);
 	}
 	
 	@Override

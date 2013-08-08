@@ -1,6 +1,5 @@
 package com.eweb4j.core;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.eweb4j.core.plugin.Plugin;
@@ -8,99 +7,79 @@ import com.eweb4j.core.plugin.PluginManager;
 
 
 /**
- * EWeb4J 启动类
+ * 框架接口
  * @author weiwei l.weiwei@163.com
- * @date 2013-6-13 上午11:00:39
+ * @date 2013-6-13 12:51:39
  */
-public class EWeb4J {
+public interface EWeb4J {
 	
-	private PluginManager pluginManager = null;
-	private List<Listener> listeners = new ArrayList<Listener>();
-	private List<Plugin> plugins = new ArrayList<Plugin>();
+	/**
+	 * 设置插件管理器
+	 * @param pluginManager
+	 */
+	public void setPluginManager(PluginManager pluginManager) ;
 	
-	public EWeb4J(){
-		
-	}
+	public PluginManager getPluginManager() ;
 	
-	public EWeb4J(PluginManager pluginManager) {
-		this.pluginManager = pluginManager;
-	}
+	/**
+	 * 添加监听器
+	 * @param listener
+	 */
+	public void addListener(Listener listener) ;
 	
-	public void setPluginManager(PluginManager pluginManager){
-		this.pluginManager = pluginManager;
-	}
+	public List<Listener> getListeners() ;
 	
-	public void addListener(Listener listener){
-		this.listeners.add(listener);
-	}
+	/**
+	 * 添加插件
+	 * @param plugin
+	 */
+	public void addPlugin(Plugin plugin) ;
 	
-	public void addPlugin(Plugin plugin) {
-		this.plugins.add(plugin);
-	}
+	public List<Plugin> getPlugins() ;
+	
 	
 	/**
 	 * 启动框架
-	 * @date 2013-6-13 上午11:55:02
-	 * @param listener
+	 * @date 2013-8-8
 	 */
-	public final EWeb4J startup() {
-		for (Plugin plugin : this.plugins){
-			this.pluginManager.install(plugin);
-		}
-		
-		for (Listener listener : this.listeners) {
-			listener.onStartup(this.pluginManager);
-		}
-		
-		return this;
-	}
+	public EWeb4J startup() ;
 	
 	/**
 	 * 停止框架
-	 * @date 2013-6-29 上午12:47:50
-	 * @param listener
+	 * @date 2013-8-8
 	 */
-	public final EWeb4J shutdown() {
-		for (Listener listener : this.listeners) {
-			listener.onShutdown(this.pluginManager);
-		}
-		
-		this.pluginManager.stopAll();
-		
-		return this;
-	}
+	public EWeb4J shutdown() ;
 	
+	/**
+	 * 监听器接口
+	 * @author vivi
+	 *
+	 */
 	public static interface Listener {
-		
-		public void onStartup(PluginManager plugins);
-		
-		public void onShutdown(PluginManager plugins);
+		public void onStartup(EWeb4J eweb4j);
+		public void onShutdown(EWeb4J eweb4j);
 		
 	}
 	
-	public static interface Configs {
-		/*默认的数据源*/
-		String DEFAULT_DATA_SOURCE = "DEFAULT_DATA_SOURCE";
+	/**
+	 * 一些常量
+	 * @author vivi
+	 *
+	 */
+	public static interface Constants {
+		String config_xml = "eweb4j-config.xml";
+		public static interface Configurations{
+			String BASE_ID = "base";
+			String MVC_ID = "mvc";
+			String ORM_ID = "orm";
+			String JPA_ID = "jpa";
+			String JDBC_ID = "jdbc";
+			String LISTENER_ID = "listener";
+			String DATA_SOURCE_ID = "data_source";
+			public static interface Types{
+				String PROPERTIES = "properties";
+			}
+		}
 	}
 
-	public List<Listener> getListeners() {
-		return listeners;
-	}
-
-	public void setListeners(List<Listener> listeners) {
-		this.listeners = listeners;
-	}
-
-	public List<Plugin> getPlugins() {
-		return plugins;
-	}
-
-	public void setPlugins(List<Plugin> plugins) {
-		this.plugins = plugins;
-	}
-
-	public PluginManager getPluginManager() {
-		return pluginManager;
-	}
-	
 }

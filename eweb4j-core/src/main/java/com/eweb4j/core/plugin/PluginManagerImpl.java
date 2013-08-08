@@ -2,6 +2,7 @@ package com.eweb4j.core.plugin;
 
 import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.configuration.MapConfiguration;
 
 /**
  * 插件管理器
@@ -11,14 +12,14 @@ import com.eweb4j.core.configuration.ConfigurationFactory;
 public class PluginManagerImpl extends PluginManager{
 	
 	/**
-	 * 插件仓库
+	 * 配置工厂
 	 */
-	protected Configuration<String, Plugin> plugins = null;
+	protected ConfigurationFactory configFactory = null;
 	
 	/**
-	 * 配置工厂实例
+	 * 插件仓库
 	 */
-	protected ConfigurationFactory configurationFactory = null; 
+	protected Configuration<String, Plugin> plugins = new MapConfiguration<String, Plugin>();
 	
 	/**
 	 * 无参构造器
@@ -27,12 +28,10 @@ public class PluginManagerImpl extends PluginManager{
 	
 	/**
 	 * 有参构造器
-	 * @param pluginsStorage 插件仓库
-	 * @param config 配置工厂实例
+	 * @param configFactory 配置工厂实例
 	 */
-	public PluginManagerImpl(Configuration<String, Plugin> plugins, ConfigurationFactory configFactory){
-		this.setPlugins(plugins);
-		this.setConfigurationFactory(configFactory);
+	public PluginManagerImpl(ConfigurationFactory configFactory){
+		this.configFactory = configFactory;
 	}
 	
 	/**
@@ -48,21 +47,6 @@ public class PluginManagerImpl extends PluginManager{
 	 */
 	public void setPlugins(Configuration<String, Plugin> plugins) {
 		this.plugins = plugins;
-	}
-
-	/**
-	 * 获取配置仓库实例
-	 */
-	public ConfigurationFactory getConfigurationFactory() {
-		return this.configurationFactory;
-	}
-
-	/**
-	 * 注入配置仓库实例
-	 * @param configs
-	 */
-	public void setConfigurationFactory(ConfigurationFactory configurationFactory) {
-		this.configurationFactory = configurationFactory;
 	}
 
 	/**
@@ -82,11 +66,9 @@ public class PluginManagerImpl extends PluginManager{
 		if (this.plugins.containsKey(plugin.ID()))
 			return true;
 		
-//		plugin.setConfigs(super.configs);
-		
 		//初始化插件
 		try {
-			plugin.init(this.configurationFactory);
+			plugin.init(this.configFactory);
 		} catch (Throwable e) {
 			throw new RuntimeException("plugin->" + plugin.ID() + " init failed.", e);
 		}
@@ -152,6 +134,11 @@ public class PluginManagerImpl extends PluginManager{
 		}
 		
 		return true;
+	}
+
+	@Override
+	public ConfigurationFactory getConfigFactory() {
+		return this.configFactory;
 	}
 	
 }

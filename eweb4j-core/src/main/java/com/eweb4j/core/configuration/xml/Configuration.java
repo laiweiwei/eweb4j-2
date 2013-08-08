@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 
 public class Configuration {
@@ -15,8 +14,8 @@ public class Configuration {
 	private String type;
 	@ElementList(required=false)
 	private List<Property> properties = new ArrayList<Property>();
-	@Element(required=false)
-	private FilePath file;
+	@ElementList(required=false)
+	private List<FilePath> files = new ArrayList<FilePath>();
 	
 	public String getId() {
 		return id;
@@ -36,17 +35,16 @@ public class Configuration {
 	public void setProperties(List<Property> properties) {
 		this.properties = properties;
 	}
-	
-	public FilePath getFile() {
-		return file;
+	public List<FilePath> getFiles() {
+		return files;
 	}
-	public void setFile(FilePath file) {
-		this.file = file;
+	public void setFiles(List<FilePath> files) {
+		this.files = files;
 	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", type=" + type + ", properties="
-				+ properties + ", file=" + file + "]";
+				+ properties + ", files=" + files + "]";
 	}
 	
 }

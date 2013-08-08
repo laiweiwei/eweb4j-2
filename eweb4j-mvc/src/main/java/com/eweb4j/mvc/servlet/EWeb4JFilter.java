@@ -16,17 +16,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.configuration.Configuration;
+import com.eweb4j.core.EWeb4JImpl;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.configuration.MapConfiguration;
-import com.eweb4j.core.configuration.PropertiesConfiguration;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
 import com.eweb4j.mvc.controller.WebContext;
 import com.eweb4j.mvc.plugin.JSPPlugin;
-import com.eweb4j.mvc.view.MVCParamNames;
 import com.eweb4j.mvc.view.TemplateEngine;
 import com.eweb4j.mvc.view.TemplateEngineBuilder;
 import com.eweb4j.mvc.view.TemplateEngineBuilders;
@@ -34,10 +31,9 @@ import com.eweb4j.utils.CommonUtil;
 
 public class EWeb4JFilter implements Filter{
 
-	private FilterConfig cfg = null;
+	private FilterConfig filterConfig = null;
 	private ServletContext servletContext = null;
 	private EWeb4J eweb4j = null;
-	private Configuration<String, String> baseConfig = null;
 	
 	private final static String class_path ;
 	static {
@@ -46,67 +42,25 @@ public class EWeb4JFilter implements Filter{
 		System.out.println("----------- "+class_path+" -----------");
 	}
 	
-	public void init(FilterConfig _cfg) throws ServletException {
-		//获取配置
-		this.cfg = _cfg;
-		this.servletContext = cfg.getServletContext();
-		//网站根目录
-		this.root_path = this.servletContext.getRealPath("/");
-		
-		System.out.println("----------- ROOT_PATH -----------");
-		System.out.println("----------- "+this.root_path+" -----------");
-		
-		//视图文件存放目录
-		this.view_path = "/WEB-INF/views";
-		System.out.println("----------- VIEW_PATH -----------");
-		System.out.println("----------- "+this.view_path+" -----------");
-		
-		//控制器包名
-		this.controller_package = "controller";
-		System.out.println("----------- CONTROLLER_PACKAGE -----------");
-		System.out.println("----------- "+this.controller_package+" -----------");
-		
-		
-		//构建配置容器
-		final Configuration<String, Plugin> pluginsConfig = new MapConfiguration<String, Plugin>();
+	public void init(FilterConfig filterConfig) throws ServletException {
+		this.filterConfig = filterConfig;
+		this.servletContext = this.filterConfig.getServletContext();
 		
 		//构建配置工厂实例
-		this.baseConfig = new MapConfiguration<String, String>();
-		this.baseConfig.put("root_path", this.root_path);
-		this.baseConfig.put("view_path", this.view_path);
-		this.baseConfig.put("controller_package", this.controller_package);
-		
-		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl(baseConfig, "eweb4j-config.xml");
-		configFactory.getConfiguration().put(MVCParamNames.view_absolute_path, root_path + view_path);
-		configFactory.getConfiguration().put(MVCParamNames.view_relative_path, view_path);
+		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl();
 		
 		//构建插件管理器
-		final PluginManager pluginManager = new PluginManagerImpl(pluginsConfig, configFactory);
+		final PluginManager pluginManager = new PluginManagerImpl(configFactory);
 		
 		//构建框架实例
-		eweb4j = new EWeb4J(pluginManager);
+		this.eweb4j = new EWeb4JImpl(pluginManager);
 		
-		//add listener
-		String listenerClasses = cfg.getInitParameter("eweb4j_listener");
-		if (listenerClasses != null && listenerClasses.trim().length() > 0) {
-			for (String listenerClass : listenerClasses.split(",")) {
-				try {
-					@SuppressWarnings("unchecked")
-					Class<EWeb4J.Listener> clazz = (Class<EWeb4J.Listener>) Thread.currentThread().getContextClassLoader().loadClass(listenerClass);
-					EWeb4J.Listener listener = clazz.newInstance();
-					eweb4j.addListener(listener);
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		//安装JSP模板引擎插件
+		//添加插件
 		Plugin jspPlugin = new JSPPlugin();
-		eweb4j.addPlugin(jspPlugin);
+		this.eweb4j.addPlugin(jspPlugin);
 		
-		//启动框架
-		eweb4j.startup();
+		//准备完毕，启动框架
+		this.eweb4j.startup();
 	}
 	
 	public void destroy() {
@@ -121,9 +75,9 @@ public class EWeb4JFilter implements Filter{
 			//初始化WebContext
 			WebContext ctx = WebContext.init(request, response);
 			ctx.setServletContext(this.servletContext);
-			ctx.setRootPath(this.root_path);
-			ctx.setViewRelativePath(this.view_path);
-			ctx.setViewAbsolutePath(this.root_path + this.view_path);
+			ctx.setRootPath(this.eweb4j.getPluginManager().getConfigFactory().getAbsolutePathOfRoot());
+			ctx.setViewRelativePath(this.eweb4j.getPluginManager().getConfigFactory().getRelativePathOfView());
+			ctx.setViewAbsolutePath(this.eweb4j.getPluginManager().getConfigFactory().getAbsolutePathOfView());
 			//FIXME:考虑多级域名对应不同视图文件夹的功能
 			final String uri = ctx.getUri();
 			System.out.println("----------- URI -----------");
@@ -172,7 +126,7 @@ public class EWeb4JFilter implements Filter{
 			 */
 			String[] uris = uri.split("/");
 			if (uris.length == 3) {
-				String controllerClassName = this.controller_package+"."+CommonUtil.toUpCaseFirst(uris[1]);
+				String controllerClassName = "controller."+CommonUtil.toUpCaseFirst(uris[1]);
 				System.out.println("----------- CONTROLLER_CLASS_NAME -----------");
 				System.out.println("----------- "+controllerClassName+" -----------");
 				String methodName = uris[2];

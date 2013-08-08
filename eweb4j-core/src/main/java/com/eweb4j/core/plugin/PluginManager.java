@@ -12,10 +12,11 @@ import com.eweb4j.core.configuration.ConfigurationFactory;
 public abstract class PluginManager {
 
 	/**
-	 * 获取配置工厂实例
+	 * 获取配置工厂
 	 * @return
 	 */
-	public abstract ConfigurationFactory getConfigurationFactory();
+	public abstract ConfigurationFactory getConfigFactory();
+	
 	
 	/**
 	 * 获取插件仓库

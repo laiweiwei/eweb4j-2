@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  | 这是EWeb4J-2.X的启动配置文件
+-->
+<eweb4j>
+	<configurations>
+		<!--
+		  | id=base 的配置是基础配置信息，可以被其他配置作为引用源，比如 ${absolute_path_of_root}
+		-->
+		<configuration id="base">
+			<properties>
+				<property name="absolute_path_of_root" value="D:/PROJECTS/vivi/eweb4j-2/eweb4j-test" />
+				<property name="relative_path_of_view" value="/WEB-INF/view" />
+			</properties>
+		</configuration>
+		<!---->
+		<configuration id="listener">
+			<properties>
+				<property name="class" value="com.eweb4j.test.EWeb4JListener"/>
+			</properties>
+		</configuration>
+		<!--
+		  | JDBC 配置信息
+		  | type=properties 的配置只能从<file>节点配置的文件里读取key-value
+		-->
+		<configuration id="jdbc" type="properties">
+			<properties>
+				<property name="default_ds" value="ds_1" />
+			</properties>
+			<files>
+				<file path="${absolute_path_of_root}/src/main/resources/db.properties" />
+			</files>
+		</configuration>
+		<!--
+		  | MVC 配置信息
+		-->
+		<configuration id="mvc">
+			<properties>
+				<property name="absollute_path_of_view" value="${absolute_path_of_root}${relative_path_of_view}" />
+			</properties>
+		</configuration>
+		
+		<!--
+		  | ORM 配置信息
+		-->
+		<configuration id="orm">
+			<properties>
+				<!--
+				  | isArray=1 表示多个相同名字的property的值会被当成数组使用","连接起来
+				-->
+				<property name="entity" value="com.eweb4j.test.User" isArray="1" />
+				<property name="entity" value="com.eweb4j.test.Pets" isArray="1" />
+			</properties>
+		</configuration>
+		<!--
+		  | SQL 配置
+		-->
+		<configuration id="sql">
+			<properties>
+				<property name="insert" value="INSERT INTO #table(#columns) values(#values)" />
+			</properties>
+		</configuration>
+	</configurations>
+</eweb4j>
