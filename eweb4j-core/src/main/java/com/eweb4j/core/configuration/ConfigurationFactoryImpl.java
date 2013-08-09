@@ -220,8 +220,8 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <V> Configuration<String, V> getFeature(){
-		return (Configuration<String, V>)configs.get(FEATURE_ID);
+	public <V> Configuration<String, V> getToolbox(){
+		return (Configuration<String, V>)configs.get(TOOLBOX_ID);
 	}
 	
 	/**

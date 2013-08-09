@@ -7,6 +7,7 @@ import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
+import com.eweb4j.core.toolbox.Toolbox;
 
 
 /**
@@ -96,19 +97,12 @@ public class GenericEWeb4J implements EWeb4J{
 	 * @param feature ioc配置的pojo id
 	 * @param args 构造器参数
 	 */
-	public <T> T getFeature(String feature, Object... args) {
-		List<Object> argList = new ArrayList<Object>();
-		//默认第一个参数是configFactory
-		argList.add(this.getConfigFactory());
-		if (args != null && args.length > 0) {
-			for (Object arg : args) {
-				argList.add(arg);
-			}
-		}
-		
-		Configuration<String, T> features = this.configFactory.getFeature();
-		System.out.println("fea->" + features);
-		return features.get(feature, argList.toArray());
+	@SuppressWarnings("unchecked")
+	public <T extends Toolbox> T getToolbox(String toolName, Object... args) {
+		Configuration<String, Toolbox> toolboxConfig = this.configFactory.getToolbox();
+		Toolbox toolbox = toolboxConfig.get(toolName);
+		toolbox.init(this, args);
+		return (T) toolbox;
 	}
 	
 }

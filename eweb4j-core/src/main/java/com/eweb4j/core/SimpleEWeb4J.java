@@ -7,6 +7,7 @@ import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
+import com.eweb4j.core.toolbox.Toolbox;
 
 /**
  * 单纯的EWeb4J实现
@@ -83,8 +84,8 @@ public class SimpleEWeb4J implements EWeb4J{
 	 * @param feature ioc配置的pojo id
 	 * @param args 构造器参数
 	 */
-	public <T> T getFeature(String feature, Object... args) {
-		return this.eweb4j.getFeature(feature, args);
+	public <T extends Toolbox> T getToolbox(String toolName, Object... args) {
+		return this.eweb4j.getToolbox(toolName, args);
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
+import com.eweb4j.core.toolbox.Toolbox;
 
 
 /**
@@ -16,12 +17,12 @@ public interface EWeb4J {
 	
 	/**
 	 * 获取一个具有某种特性的对象，比如DAO对象
-	 * @param <T>
-	 * @param feature
+	 * @param <T extends Toolbox>
+	 * @param toolName
 	 * @param args
 	 * @return
 	 */
-	public <T> T getFeature(String feature, Object... args);
+	public <T extends Toolbox> T getToolbox(String toolName, Object... args);
 	
 	/**
 	 * 获取插件管理器
@@ -98,7 +99,7 @@ public interface EWeb4J {
 			String JDBC_ID = "jdbc";
 			String LISTENER_ID = "listener";
 			String DATA_SOURCE_ID = "data_source";
-			String FEATURE_ID = "feature";
+			String TOOLBOX_ID = "toolbox";
 			
 			public static interface Types{
 				String PROPERTIES = "properties";

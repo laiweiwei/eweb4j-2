@@ -2,13 +2,8 @@ package com.eweb4j.test;
 
 import java.util.List;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
 import com.eweb4j.core.SimpleEWeb4J;
-import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.core.configuration.xml.EWeb4j;
-import com.eweb4j.orm.helper.SQLHelper;
+import com.eweb4j.orm.toolbox.SqlTool;
 
 /**
  * 测试ORM插件功能
@@ -17,20 +12,18 @@ import com.eweb4j.orm.helper.SQLHelper;
  */
 public class TestORMPlugin {
 
-	public static void main3(String[] args) throws Exception{
+	public static void main(String[] args) throws Exception{
 		
 		final String xml = "src/main/resources/eweb4j-config.xml";
 		
 		//构建框架实例
 		SimpleEWeb4J eweb4j = new SimpleEWeb4J(xml);
 		
-		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
-		
 		Pets p = new Pets();
 		p.setNickname("小黄2");
 		p.setNumber("95278");
 		p.setAge(8);
-		SQLHelper db = eweb4j.getFeature("sql", p);
+		SqlTool<Pets> db = eweb4j.getToolbox("sql", p);
 		
 		Number number = db.update("insert into #table(#columns) values(#values)");
 		System.out.println("insert->"+number);
@@ -52,10 +45,6 @@ public class TestORMPlugin {
 		}
 		
 		eweb4j.shutdown();
-	}
-	
-	public static void main(String[] args){
-		
 	}
 	
 }

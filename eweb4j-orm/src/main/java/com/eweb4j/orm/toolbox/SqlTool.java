@@ -1,4 +1,4 @@
-package com.eweb4j.orm.helper;
+package com.eweb4j.orm.toolbox;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,83 +12,81 @@ import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 
-import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.jdbc.JDBCHelper;
 import com.eweb4j.core.jdbc.JDBCRow;
+import com.eweb4j.core.toolbox.Toolbox;
 import com.eweb4j.orm.PojoMappings;
 import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAFieldInfo;
 import com.eweb4j.orm.config.JoinType;
 import com.eweb4j.utils.ReflectUtil;
 
-public class SQLHelper {
+public class SqlTool<T> implements Toolbox{
 	
-	private DataSource dataSource = null;
-	private ConfigurationFactory configFactory = null;
-	private PojoMappings<Object> pojoMappings = null;
-	private ReflectUtil reflectUtil = null;
-	private Class<Object> cls = null;
-	private Object pojo = null;
-	private String alias = "";
-	private HashMap<String, String> joins = new HashMap<String, String>();
+	protected EWeb4J eweb4j = null;
+	protected DataSource dataSource = null;
+	protected PojoMappings<T> pojoMappings = null;
+	protected ReflectUtil reflectUtil = null;
+	protected Class<T> cls = null;
+	protected T pojo = null;
+	protected JPAClassInfo jpa = null;
+	protected String alias = "";
+	protected HashMap<String, String> joins = new HashMap<String, String>();
 
-	@SuppressWarnings("unchecked")
-	public SQLHelper(ConfigurationFactory configFactory, Class<?> cls){
-		this.configFactory = configFactory;
-		this.cls = (Class<Object>) cls;
-		this.pojoMappings = new PojoMappings<Object>(this.cls, configFactory);
-		this.dataSource = configFactory.getDefaultDataSource();
-		this.reflectUtil = new ReflectUtil(this.cls);
-		this.pojo = this.reflectUtil.getObject(); 
+	public void init(EWeb4J eweb4j, Object... args) {
+		this._init(eweb4j, args[0]);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public SQLHelper(ConfigurationFactory configFactory, Object pojo){
-		this.configFactory = configFactory;
-		this.cls = (Class<Object>)pojo.getClass();
-		this.pojoMappings = new PojoMappings<Object>(this.cls, configFactory);
-		this.dataSource = configFactory.getDefaultDataSource();
-		
-		this.pojo = pojo;
-		this.reflectUtil = new ReflectUtil(this.pojo);
+	private void _init(EWeb4J eweb4j, Object obj) {
+		this.eweb4j = eweb4j;
+		if (Class.class.isInstance(obj)) {
+			this.cls = (Class<T>) obj;
+			this.reflectUtil = new ReflectUtil(this.cls);
+			this.pojo = (T) this.reflectUtil.getObject();
+		}else{
+			this.pojo = (T) obj;
+			this.reflectUtil = new ReflectUtil(this.pojo);
+			this.cls = (Class<T>) this.pojo.getClass();
+		}
+		this.jpa = this.eweb4j.getConfigFactory().getJPA(this.cls.getName());
+		this.pojoMappings = new PojoMappings<T>(this.cls, this.eweb4j.getConfigFactory());
+		this.dataSource = this.eweb4j.getConfigFactory().getDefaultDataSource();
 	}
 	
-	public <T> T getPojo(){
-		return (T) this.pojo;
+	public T getPojo(){
+		return this.pojo;
 	}
 	
-	public ConfigurationFactory getConfigFactory(){
-		return this.configFactory;
-	}
-	
-	public SQLHelper alias(String alias) {
+	public SqlTool<T> alias(String alias) {
 		this.alias = alias;
 		return this;
 	}
 
-	public SQLHelper join(String field, String alias) {
+	public SqlTool<T> join(String field, String alias) {
 		this.joins.put(field, alias);
 		return this;
 	}
 
-	public <T> T queryOne(String eql, Object... _args) {
+	public T queryOne(String eql, Object... _args) {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		
 		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);
 		List<JDBCRow> rows = JDBCHelper.find(dataSource, sql, args.toArray());
 		
-		List<T> list = (List<T>) this.pojoMappings.mapping(rows);
+		List<T> list = this.pojoMappings.mapping(rows);
 		return list == null ? null : list.isEmpty() ? null : list.get(0);
 	}
 	
-	public <T> List<T> query(String eql, Object... _args) {
+	public List<T> query(String eql, Object... _args) {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);
 		List<JDBCRow> rows = JDBCHelper.find(dataSource, sql, args.toArray());
 		
-		return (List<T>) this.pojoMappings.mapping(rows);
+		return this.pojoMappings.mapping(rows);
 	}
 
 	public Number update(String eql, Object... _args) {
@@ -100,7 +98,7 @@ public class SQLHelper {
 	}
 
 	private String fmtSql(Class<?> cls, ReflectUtil ru, String alias, Map<String, String> joins, String _sql, List<Object> args) {
-		JPAClassInfo jpa = configFactory.getJPA(cls.getName());
+		JPAClassInfo jpa = this.eweb4j.getConfigFactory().getJPA(cls.getName());
 		String sql = _sql;
 		if (joins != null && !joins.isEmpty()) {
 			for (Iterator<Entry<String, String>> it = joins.entrySet().iterator(); it.hasNext();) {
@@ -133,7 +131,7 @@ public class SQLHelper {
 						String relCol = f.relCol;
 						Field field = ru.getField(f.name);
 						Class<?> tarClass = field.getType();
-						JPAClassInfo tarJpa = this.configFactory.getJPA(tarClass);
+						JPAClassInfo tarJpa = this.eweb4j.getConfigFactory().getJPA(tarClass);
 						String relField = null;
 						if (relCol == null || relCol.trim().length() == 0){
 							relCol = tarJpa.idCol;
@@ -172,18 +170,6 @@ public class SQLHelper {
 		}
 		
 		return sql;
-	}
-
-	public DataSource getDataSource() {
-		return dataSource;
-	}
-
-	public PojoMappings getPojoMappings() {
-		return pojoMappings;
-	}
-
-	public ReflectUtil getReflectUtil() {
-		return reflectUtil;
 	}
 
 }

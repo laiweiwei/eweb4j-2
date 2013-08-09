@@ -4,6 +4,6 @@
 -->
 <ioc>
 	<pojos>
-		<pojo id="sql" clazz="com.eweb4j.orm.helper.SQLHelper" />
+		<pojo id="sql" clazz="com.eweb4j.orm.toolbox.SqlTool" />
 	</pojos>
 </ioc>

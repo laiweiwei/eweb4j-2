@@ -1,20 +1,64 @@
 package com.eweb4j.core.configuration;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
 import com.eweb4j.core.configuration.xml.IOC;
 import com.eweb4j.core.configuration.xml.Pojo;
 import com.eweb4j.core.configuration.xml.Setter;
 
+/**
+ * IOC Configuration
+ * @author vivi
+ *
+ * @param <T>
+ */
 public class IOCConfiguration<T> extends XMLConfiguration<T>{
 
+	//singleton Pojo instance cache
 	private Map<String, T> values = null;
+	//IOC Pojo xml config cache
 	private Map<String, Pojo> pojoMap = null;
+	//Pojo class cache
 	private Map<String, Class<?>> clsMap = new HashMap<String, Class<?>>();
+
+	@Override
+	public void init() {
+		try {
+			this.values = new HashMap<String, T>();
+			//使用spring的simple-xml组件解析XML为POJO
+			Serializer serializer = null;
+			if (context == null)
+				serializer = new Persister();
+			else
+				serializer = new Persister(context);
+			
+			File f = new File(xml);
+			if (!f.exists()) throw new Exception("xml->"+f.getAbsolutePath()+" not found");
+        	if (!f.isFile()) throw new Exception("xml->"+f.getAbsolutePath()+" is not a file");
+        	IOC ioc = serializer.read(IOC.class, f);
+			if (ioc == null) return ;
+			
+			List<Pojo> pojos = ioc.getPojos();
+			if (pojos == null || pojos.isEmpty()) return;
+			this.pojoMap = new HashMap<String, Pojo>(pojos.size());
+			for (Pojo pojo : pojos){
+				pojoMap.put(pojo.getId(), pojo);
+			}
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
 	
+	/**
+	 * fetch Pojo instance
+	 */
 	public T get(String key, Object... args) {
 		Pojo pojo = this.pojoMap.get(key);
 		String scope = pojo.getScope();
@@ -31,21 +75,6 @@ public class IOCConfiguration<T> extends XMLConfiguration<T>{
 		}
 		
 		return this._get_pojo_instance(pojo, args);
-	}
-	
-	@Override
-	public void handleXmlBean(Object xmlBean) {
-		try {
-			IOC ioc = (IOC)xmlBean;
-			List<Pojo> pojos = ioc.getPojos();
-			if (pojos == null || pojos.isEmpty()) return;
-			this.pojoMap = new HashMap<String, Pojo>(pojos.size());
-			for (Pojo pojo : pojos){
-				pojoMap.put(pojo.getId(), pojo);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -83,7 +112,7 @@ public class IOCConfiguration<T> extends XMLConfiguration<T>{
 			
 			//TODO: 暂时只做setter的注入，构造器的以后再补
 			List<Setter> setters = pojo.getSetters();
-			if (setters == null || setters.isEmpty()) return null;
+			if (setters == null || setters.isEmpty()) return pojoInstance;
 			for (Setter setter : setters){
 				String name = setter.getName();
 				String refer = setter.getRefer();
@@ -103,10 +132,8 @@ public class IOCConfiguration<T> extends XMLConfiguration<T>{
 			
 			return pojoInstance;
 		} catch (Throwable e){
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
-		
-		return null;
 	}
 	
 }

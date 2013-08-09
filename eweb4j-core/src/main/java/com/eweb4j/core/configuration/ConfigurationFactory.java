@@ -29,11 +29,11 @@ public interface ConfigurationFactory {
 	public <V> Configuration<String, V> getJdbcConfig();
 	
 	/**
-	 * 获取feature容器
+	 * 获取Toolbox容器
 	 * @param <V>
 	 * @return
 	 */
-	public <V> Configuration<String, V> getFeature();
+	public <V> Configuration<String, V> getToolbox();
 	
 	/**
 	 * 根据ID获取对应的配置内容

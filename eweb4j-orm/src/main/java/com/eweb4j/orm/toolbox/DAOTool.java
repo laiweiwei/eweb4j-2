@@ -1,38 +1,20 @@
-package com.eweb4j.orm.helper;
+package com.eweb4j.orm.toolbox;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Entity;
-
-import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAFieldInfo;
 
-@Entity
-public class DAOHelper {
+public class DAOTool<T> extends SqlTool<T>{
 
-	private SQLHelper queryHelper = null;
-	private JPAClassInfo jpa = null;
-
-	public <T> DAOHelper(ConfigurationFactory configFactory, Class<?> cls){
-		this.queryHelper = new SQLHelper(configFactory, cls);
-		this.jpa = this.queryHelper.getConfigFactory().getJPA(cls);
-	}
-	
-	public DAOHelper(ConfigurationFactory configFactory, Object pojo){
-		this.queryHelper = new SQLHelper(configFactory, pojo);
-		this.jpa = this.queryHelper.getConfigFactory().getJPA(pojo.getClass());
-	}
-	
 	private Object _get_id(){
-		String idField = this.jpa.id;
-		Method idGetter = this.queryHelper.getReflectUtil().getGetter(idField);
+		String idField = super.jpa.id;
+		Method idGetter = super.reflectUtil.getGetter(idField);
 		if (idGetter == null) return null;
 		
 		try {
-			return idGetter.invoke(this.queryHelper.getPojo());
+			return idGetter.invoke(super.pojo);
 		} catch (Throwable e){
 			e.printStackTrace();
 		}
@@ -42,7 +24,7 @@ public class DAOHelper {
 	private int _execute_by_id(String eql){
 		try {
 			Object idVal = _get_id();
-			Number row = this.queryHelper.update(eql, idVal);
+			Number row = super.update(eql, idVal);
 			return row.intValue();
 		} catch (Throwable e){
 			e.printStackTrace();
@@ -53,13 +35,13 @@ public class DAOHelper {
 	public void create(){
 		final String eql = "INSERT INTO #table(#columns) values(#values)";
 		
-		Number idVal = this.queryHelper.update(eql);
+		Number idVal = super.update(eql);
 		String idField = this.jpa.id;
-		Method idSetter = this.queryHelper.getReflectUtil().getSetter(idField);
+		Method idSetter = super.reflectUtil.getSetter(idField);
 		if (idSetter == null)
 			return ;
 		try {
-			idSetter.invoke(this.queryHelper.getPojo(), idVal.longValue());
+			idSetter.invoke(super.pojo, idVal.longValue());
 		} catch (Throwable e){
 			e.printStackTrace();
 			return ;
@@ -78,7 +60,7 @@ public class DAOHelper {
 	
 	public int clear(){
 		final String eql = "delete from #table";
-		return this.queryHelper.update(eql).intValue();
+		return super.update(eql).intValue();
 	}
 	
 	public int updateFields(String... fields){
@@ -91,7 +73,7 @@ public class DAOHelper {
 					sb.append(",");
 				JPAFieldInfo f = jpa.getFieldInfoByField(field);
 				sb.append(f.column).append("=?");
-				Method fieldGetter = this.queryHelper.getReflectUtil().getGetter(field);
+				Method fieldGetter = super.reflectUtil.getGetter(field);
 				Object value = fieldGetter.invoke(this);
 				args.add(value);
 			} catch (Throwable e) {
@@ -103,10 +85,9 @@ public class DAOHelper {
 		args.add(idVal);
 		
 		final String eql = String.format(fmt, sb.toString());
-		Number row = this.queryHelper.update(eql, args.toArray());
+		Number row = super.update(eql, args.toArray());
 		
 		return row.intValue();
 	}
-	
 	
 }
