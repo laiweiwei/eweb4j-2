@@ -46,6 +46,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 			if (propertiesBean == null || propertiesBean.isEmpty()) continue;
 			configuration = new MapConfiguration<String, String>(propertiesBean.size());
 			for (Property p : propertiesBean) {
+				//若不开启，跳过
+				if (0 == p.getEnabled()) continue;
+				
 				configuration.put(p.getName(), p.getValue());
 			}
 			
@@ -55,29 +58,27 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return null;
 	}
 	
-	private void storeProperties(Configuration<String, String> configuration, List<Property> propertiesBean){
+	private void storeProperties(Configuration<String, Object> configuration, List<Property> propertiesBean){
 		Map<String, StringBuilder> arrayMap = new HashMap<String, StringBuilder>();
 		for (Property p : propertiesBean) {
-			int isArray = p.getIsArray();
-			if (1 == isArray) {
-				if (!arrayMap.containsKey(p.getName()))
-					arrayMap.put(p.getName(), new StringBuilder());
-				StringBuilder sb = arrayMap.get(p.getName());
-				if (!configuration.containsKey(p.getName())) {
-					configuration.put(p.getName(), p.getValue());
-				}
-				
-				String v = configuration.get(p.getName());
-				if (v != null) {
-					if (sb.length() > 0)
-						sb.append(",");
-					sb.append(p.getValue());
-					arrayMap.put(p.getName(), sb);
-				}
-				configuration.put(p.getName(), sb.toString());
-			}else {
+			//若不开启，跳过
+			if (0 == p.getEnabled()) continue;
+			
+			if (!arrayMap.containsKey(p.getName()))
+				arrayMap.put(p.getName(), new StringBuilder());
+			StringBuilder sb = arrayMap.get(p.getName());
+			if (!configuration.containsKey(p.getName())) {
 				configuration.put(p.getName(), p.getValue());
 			}
+			
+			Object v = configuration.get(p.getName());
+			if (v != null) {
+				if (sb.length() > 0)
+					sb.append(",");
+				sb.append(p.getValue());
+				arrayMap.put(p.getName(), sb);
+			}
+			configuration.put(p.getName(), sb.toString());
 		}
 	}
 	
@@ -94,27 +95,57 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		if (eweb4j == null) return ;
 	
 		List<com.eweb4j.core.configuration.xml.Configuration> configs = eweb4j.getConfigurations();
-		for (com.eweb4j.core.configuration.xml.Configuration config : configs) {
-			Configuration<String, String> configuration = null;
+		outer:for (com.eweb4j.core.configuration.xml.Configuration config : configs) {
+			Configuration<String, Object> configuration = null;
 			String id = config.getId();
 			String type = config.getType();
 			List<Property> propertyBeans = config.getProperties();
 			//根据不同的类型处理不同配置信息的获取来源
 			if (Types.PROPERTIES.equals(type)) {
 				List<FilePath> filePaths = config.getFiles();
-				configuration = new MapConfiguration<String, String>();
+				configuration = new MapConfiguration<String, Object>();
 				if (filePaths != null && !filePaths.isEmpty()) {
 					for (FilePath filePathBean : filePaths) {
+						//若不开启，跳过
+						if (0 == filePathBean.getEnabled()) continue;
 						String filePath = filePathBean.getPath();
 						File f = new File(filePath);
-						if (!f.exists()) throw new Exception("xml->"+f.getAbsolutePath()+" not found");
-			        	if (!f.isFile()) throw new Exception("xml->"+f.getAbsolutePath()+" is not a file");
+						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
+			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
 						//读取properties文件
 			        	configuration.getMap().putAll(new PropertiesConfiguration(filePath).getMap());
 					}
 				}
-			}else {
-				configuration = new MapConfiguration<String, String>(propertyBeans.size());
+			} else if (Types.XML.equals(type)){
+				List<FilePath> filePaths = config.getFiles();
+				configuration = new MapConfiguration<String, Object>();
+				if (filePaths != null && !filePaths.isEmpty()) {
+					String configClass = config.getClazz();
+					for (FilePath filePathBean : filePaths) {
+						//若不开启，跳过
+						if (0 == filePathBean.getEnabled()) continue;
+						String filePath = filePathBean.getPath();
+						File f = new File(filePath);
+						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
+			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
+						//读取xml文件
+			        	String xmlBeanClass = filePathBean.getClazz();
+			        	@SuppressWarnings("unchecked")
+						Class<XMLConfiguration<Object>> cls = (Class<XMLConfiguration<Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
+			        	XMLConfiguration<Object> c = cls.newInstance();
+			        	c.setXml(f.getAbsolutePath());
+			        	c.setXmlBeanClass(xmlBeanClass);
+			        	c.setContext(context);
+			        	c.init();
+			        	//将对应ID的配置信息添加到内存里
+						this.configs.put(id, c);
+						//存储<property>节点
+						this.storeProperties(c, propertyBeans);
+						continue outer;
+					}
+				}
+			} else {
+				configuration = new MapConfiguration<String, Object>(propertyBeans.size());
 			}
 			
 			//存储<property>节点
@@ -130,6 +161,8 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 * @param xml
 	 */
 	private void init(String xml){
+		if (xml == null || xml.trim().length() == 0) 
+			xml = EWeb4J.Constants.config_xml;
 		this.configs = new HashMap<String, Configuration<String, ?>>();
 		try {
 			Map<String, String> context = null;
@@ -152,7 +185,7 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 	
 	public ConfigurationFactoryImpl(){
-		init(EWeb4J.Constants.config_xml);
+		init(null);
 	}
 	
 	/**
@@ -186,6 +219,11 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return (Configuration<String, V>) configs.get(JDBC_ID);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <V> Configuration<String, V> getFeature(){
+		return (Configuration<String, V>)configs.get(FEATURE_ID);
+	}
+	
 	/**
 	 * 根据ID获取对应的配置内容
 	 * @param id
@@ -199,8 +237,11 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	private List<String> getListString(String id, String key){
 		return getListString(id, key, ",");
 	}
-	private <K> List<String> getListString(String id, String key, String split){
-		return configs.get(id).getListString(key, split);
+	private List<String> getListString(String id, String key, String split){
+		Configuration<String, ?> config = this.configs.get(id);
+		if (config == null) return null;
+		
+		return config.getListString(key, split);
 	}
 	
 	private String getString(String id, String key){
@@ -208,7 +249,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 	
 	private String getString(String id, String key, String defaultVal){
-		return this.configs.get(id).getString(key, defaultVal);
+		Configuration<String, ?> config = this.configs.get(id);
+		if (config == null) return null;
+		return config.getString(key, defaultVal);
 	}
 	
 	/**
@@ -216,7 +259,8 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 * @return
 	 */
 	public String getDefaultDataSourceName(){
-		return this.getString(JDBC_ID, "default_ds", "ds_1");
+		List<String> list = this.getListString(JDBC_ID, "ds.names");
+		return list == null ? "ds" : list.isEmpty() ? "ds" : list.get(0);
 	}
 	
 	/**
@@ -224,14 +268,18 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 */
 	public DataSource getDefaultDataSource(){
 		String dsName = getDefaultDataSourceName();
-		return (DataSource) this.configs.get(DATA_SOURCE_ID).get(dsName);
+		Configuration<String, ?> config = this.configs.get(DATA_SOURCE_ID);
+		if (config == null) return null;
+		return (DataSource) config.get(dsName);
 	}
 	
 	/**
 	 * 获取指定名字的数据源实例
 	 */
 	public DataSource getDataSource(String dsName){
-		return (DataSource) this.configs.get(DATA_SOURCE_ID).get(dsName);
+		Configuration<String, ?> config = this.configs.get(DATA_SOURCE_ID);
+		if (config == null) return null;
+		return (DataSource) config.get(dsName);
 	}
 	
 	/**
@@ -259,10 +307,14 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 
 	/**
-	 * 获取监听器
+	 * 获取监听器实现类列表
 	 */
 	public List<String> getListeners() {
 		return this.getListString(LISTENER_ID, "class");
+	}
+	
+	public List<String> getPlugins() {
+		return this.getListString(PLUGIN_ID, "class");
 	}
 	
 	/**
@@ -277,7 +329,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getJPA(String entityClass) {
-		return (T) getConfiguration(JPA_ID).get(entityClass);
+		Configuration<String, ?> config = getConfiguration(JPA_ID);
+		if (config == null) return null;
+		return (T) config.get(entityClass);
 	}
 	
 	public static void main(String[] args){

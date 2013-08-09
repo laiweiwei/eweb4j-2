@@ -1,5 +1,6 @@
 package com.eweb4j.mvc.plugin;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.mvc.view.TemplateEngine;
@@ -30,7 +31,8 @@ public abstract class AbstractTemplateEnginePlugin extends Plugin{
 	}
 	
 	@Override
-	public void init(ConfigurationFactory configFactory) {
+	public void init(EWeb4J eweb4j) {
+		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
 		String absolutePathOfView = configFactory.getAbsolutePathOfView();
 		init(absolutePathOfView);
 	}

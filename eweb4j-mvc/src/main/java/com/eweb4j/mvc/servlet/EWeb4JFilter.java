@@ -16,14 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.EWeb4JImpl;
-import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.plugin.Plugin;
-import com.eweb4j.core.plugin.PluginManager;
-import com.eweb4j.core.plugin.PluginManagerImpl;
+import com.eweb4j.core.SimpleEWeb4J;
 import com.eweb4j.mvc.controller.WebContext;
-import com.eweb4j.mvc.plugin.JSPPlugin;
 import com.eweb4j.mvc.view.TemplateEngine;
 import com.eweb4j.mvc.view.TemplateEngineBuilder;
 import com.eweb4j.mvc.view.TemplateEngineBuilders;
@@ -45,22 +39,10 @@ public class EWeb4JFilter implements Filter{
 	public void init(FilterConfig filterConfig) throws ServletException {
 		this.filterConfig = filterConfig;
 		this.servletContext = this.filterConfig.getServletContext();
-		
-		//构建配置工厂实例
-		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl();
-		
-		//构建插件管理器
-		final PluginManager pluginManager = new PluginManagerImpl(configFactory);
+		String xml = this.filterConfig.getInitParameter("config-xml");
 		
 		//构建框架实例
-		this.eweb4j = new EWeb4JImpl(pluginManager);
-		
-		//添加插件
-		Plugin jspPlugin = new JSPPlugin();
-		this.eweb4j.addPlugin(jspPlugin);
-		
-		//准备完毕，启动框架
-		this.eweb4j.startup();
+		this.eweb4j = new SimpleEWeb4J(xml);
 	}
 	
 	public void destroy() {
@@ -75,9 +57,9 @@ public class EWeb4JFilter implements Filter{
 			//初始化WebContext
 			WebContext ctx = WebContext.init(request, response);
 			ctx.setServletContext(this.servletContext);
-			ctx.setRootPath(this.eweb4j.getPluginManager().getConfigFactory().getAbsolutePathOfRoot());
-			ctx.setViewRelativePath(this.eweb4j.getPluginManager().getConfigFactory().getRelativePathOfView());
-			ctx.setViewAbsolutePath(this.eweb4j.getPluginManager().getConfigFactory().getAbsolutePathOfView());
+			ctx.setRootPath(this.eweb4j.getConfigFactory().getAbsolutePathOfRoot());
+			ctx.setViewRelativePath(this.eweb4j.getConfigFactory().getRelativePathOfView());
+			ctx.setViewAbsolutePath(this.eweb4j.getConfigFactory().getAbsolutePathOfView());
 			//FIXME:考虑多级域名对应不同视图文件夹的功能
 			final String uri = ctx.getUri();
 			System.out.println("----------- URI -----------");

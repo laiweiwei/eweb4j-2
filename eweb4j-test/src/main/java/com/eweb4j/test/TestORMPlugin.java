@@ -1,14 +1,14 @@
 package com.eweb4j.test;
 
-import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.EWeb4JImpl;
+import java.util.List;
+
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
+import com.eweb4j.core.SimpleEWeb4J;
 import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.plugin.PluginManager;
-import com.eweb4j.core.plugin.PluginManagerImpl;
-import com.eweb4j.orm.helper.QueryHelper;
-import com.eweb4j.orm.plugin.ORMPlugin;
-import com.eweb4j.plugins.DruidPlugin;
+import com.eweb4j.core.configuration.xml.EWeb4j;
+import com.eweb4j.orm.helper.SQLHelper;
 
 /**
  * 测试ORM插件功能
@@ -17,42 +17,31 @@ import com.eweb4j.plugins.DruidPlugin;
  */
 public class TestORMPlugin {
 
-	public static void main(String[] args) throws Exception{
+	public static void main3(String[] args) throws Exception{
 		
-		//构建配置工厂实例
-		final ConfigurationFactory configFactory = new ConfigurationFactoryImpl("src/main/resources/eweb4j-config.xml");
-		
-		//构建插件管理器
-		final PluginManager pluginManager = new PluginManagerImpl(configFactory);
+		final String xml = "src/main/resources/eweb4j-config.xml";
 		
 		//构建框架实例
-		EWeb4J eweb4j = new EWeb4JImpl(pluginManager);
+		SimpleEWeb4J eweb4j = new SimpleEWeb4J(xml);
 		
-		//添加ORM插件
-		eweb4j.addPlugin(new ORMPlugin());
-		
-		//安装 DRUID 插件
-		eweb4j.addPlugin(new DruidPlugin());
-		
-		//准备完毕，启动框架
-		eweb4j.startup();
+		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
 		
 		Pets p = new Pets();
 		p.setNickname("小黄2");
 		p.setNumber("95278");
 		p.setAge(8);
-		QueryHelper<Pets> db = new QueryHelper<Pets>(p, configFactory);
+		SQLHelper db = eweb4j.getFeature("sql", p);
 		
 		Number number = db.update("insert into #table(#columns) values(#values)");
 		System.out.println("insert->"+number);
 		
-//		List<Pets> pets = db.query("select * from #table where #nickname = ?", "testName");
-//		System.out.println("pet->"+pets);
-//		
-//		pets = db.alias("p").join("user", "u")
-//			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
-//		
-//		System.out.println("pet->"+pets);
+		List<Pets> pets = db.query("select * from #table");
+		System.out.println("pet->"+pets);
+		
+		pets = db.alias("p").join("user", "u")
+			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
+		
+		System.out.println("pet->"+pets);
 		
 		System.out.println();
 		
@@ -63,6 +52,10 @@ public class TestORMPlugin {
 		}
 		
 		eweb4j.shutdown();
+	}
+	
+	public static void main(String[] args){
+		
 	}
 	
 }

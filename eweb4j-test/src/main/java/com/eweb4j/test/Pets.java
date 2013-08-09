@@ -1,11 +1,19 @@
 package com.eweb4j.test;
 
+import java.io.File;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
+import com.eweb4j.core.configuration.xml.EWeb4j;
+import com.eweb4j.core.configuration.xml.IOC;
 
 /**
  * 宠物实体类

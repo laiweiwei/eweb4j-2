@@ -13,10 +13,27 @@
 				<property name="relative_path_of_view" value="/WEB-INF/view" />
 			</properties>
 		</configuration>
-		<!---->
+		<!--
+		  | 插件配置
+		-->
+		<configuration id="plugin">
+			<properties>
+				<!--
+				  | 多个相同名字的property的值会被当成数组使用","连接起来
+				-->
+				<property name="class" value="com.eweb4j.orm.plugin.ORMPlugin" enabled="1" />
+				<property name="class" value="com.eweb4j.plugins.DruidPlugin" enabled="1"  />
+				<property name="class" value="com.eweb4j.mvc.plugin.JSPPlugin" enabled="0"  />
+				<property name="class" value="com.eweb4j.mvc.plugin.VelocityPlugin" enabled="0"  />
+				<property name="class" value="com.eweb4j.mvc.plugin.FreemarkerPlugin" enabled="0"  />
+			</properties>
+		</configuration>
+		<!--
+		  | 监听器配置
+		-->
 		<configuration id="listener">
 			<properties>
-				<property name="class" value="com.eweb4j.test.EWeb4JListener"/>
+				<property name="class" value="com.eweb4j.test.EWeb4JListener" enabled="0" />
 			</properties>
 		</configuration>
 		<!--
@@ -24,9 +41,6 @@
 		  | type=properties 的配置只能从<file>节点配置的文件里读取key-value
 		-->
 		<configuration id="jdbc" type="properties">
-			<properties>
-				<property name="default_ds" value="ds_1" />
-			</properties>
 			<files>
 				<file path="${absolute_path_of_root}/src/main/resources/db.properties" />
 			</files>
@@ -46,19 +60,22 @@
 		<configuration id="orm">
 			<properties>
 				<!--
-				  | isArray=1 表示多个相同名字的property的值会被当成数组使用","连接起来
+				  | 多个相同名字的property的值会被当成数组使用","连接起来
 				-->
-				<property name="entity" value="com.eweb4j.test.User" isArray="1" />
-				<property name="entity" value="com.eweb4j.test.Pets" isArray="1" />
+				<property name="entity" value="com.eweb4j.test.User"  />
+				<property name="entity" value="com.eweb4j.test.Pets"  />
 			</properties>
 		</configuration>
 		<!--
-		  | SQL 配置
+		  | Feature 配置
 		-->
-		<configuration id="sql">
-			<properties>
-				<property name="insert" value="INSERT INTO #table(#columns) values(#values)" />
-			</properties>
+		<configuration id="feature" type="xml" clazz="com.eweb4j.core.configuration.IOCConfiguration" >
+			<files>
+				<file enabled="1" 
+					  path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml"
+					  clazz="com.eweb4j.core.configuration.xml.IOC"
+			    />
+			</files>
 		</configuration>
 	</configurations>
 </eweb4j>

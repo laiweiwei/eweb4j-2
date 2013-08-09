@@ -1,7 +1,7 @@
 package com.eweb4j.core.plugin;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.Configuration;
-import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.MapConfiguration;
 
 /**
@@ -12,11 +12,6 @@ import com.eweb4j.core.configuration.MapConfiguration;
 public class PluginManagerImpl extends PluginManager{
 	
 	/**
-	 * 配置工厂
-	 */
-	protected ConfigurationFactory configFactory = null;
-	
-	/**
 	 * 插件仓库
 	 */
 	protected Configuration<String, Plugin> plugins = new MapConfiguration<String, Plugin>();
@@ -25,14 +20,6 @@ public class PluginManagerImpl extends PluginManager{
 	 * 无参构造器
 	 */
 	public PluginManagerImpl(){}
-	
-	/**
-	 * 有参构造器
-	 * @param configFactory 配置工厂实例
-	 */
-	public PluginManagerImpl(ConfigurationFactory configFactory){
-		this.configFactory = configFactory;
-	}
 	
 	/**
 	 * 获取插件仓库实例
@@ -62,13 +49,13 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 安装插件
 	 */
-	public boolean install(Plugin plugin) {
+	public boolean install(Plugin plugin, EWeb4J eweb4j) {
 		if (this.plugins.containsKey(plugin.ID()))
 			return true;
 		
 		//初始化插件
 		try {
-			plugin.init(this.configFactory);
+			plugin.init(eweb4j);
 		} catch (Throwable e) {
 			throw new RuntimeException("plugin->" + plugin.ID() + " init failed.", e);
 		}
@@ -112,11 +99,11 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 升级插件 
 	 */
-	public boolean upgrade(Plugin plugin) {
+	public boolean upgrade(Plugin plugin, EWeb4J eweb4j) {
 		//先卸载插件
 		uninstall(plugin);
 		//然后安装插件
-		install(plugin);
+		install(plugin, eweb4j);
 		
 		//TODO: 使用监听器代替
 		System.out.println("plugin->"+plugin.ID()+" upgrade success.");
@@ -136,9 +123,4 @@ public class PluginManagerImpl extends PluginManager{
 		return true;
 	}
 
-	@Override
-	public ConfigurationFactory getConfigFactory() {
-		return this.configFactory;
-	}
-	
 }

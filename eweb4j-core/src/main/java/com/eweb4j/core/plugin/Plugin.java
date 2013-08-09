@@ -1,6 +1,6 @@
 package com.eweb4j.core.plugin;
 
-import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.EWeb4J;
 
 /**
  * 插件接口
@@ -35,7 +35,7 @@ public abstract class Plugin {
 	 * @param configFactory
 	 * @return
 	 */
-	public abstract void init(ConfigurationFactory configFactory);
+	public abstract void init(EWeb4J eweb4j);
 	
 	/**
 	 * 启动插件 

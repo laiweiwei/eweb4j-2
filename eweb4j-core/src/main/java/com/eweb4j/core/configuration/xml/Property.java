@@ -9,7 +9,9 @@ public class Property {
 	@Attribute
 	private String value;
 	@Attribute(required=false)
-	private int isArray;
+	private int enabled = 1;//是否开启
+	@Attribute(required=false)
+	private String clazz;
 
 	public String getName() {
 		return name;
@@ -27,18 +29,26 @@ public class Property {
 		this.value = value;
 	}
 
-	public int getIsArray() {
-		return isArray;
+	public int getEnabled() {
+		return enabled;
 	}
 
-	public void setIsArray(int isArray) {
-		this.isArray = isArray;
+	public void setEnabled(int enabled) {
+		this.enabled = enabled;
+	}
+
+	public String getClazz() {
+		return clazz;
+	}
+
+	public void setClazz(String clazz) {
+		this.clazz = clazz;
 	}
 
 	@Override
 	public String toString() {
-		return "Property [name=" + name + ", value=" + value + ", isArray="
-				+ isArray + "]";
+		return "Property [name=" + name + ", value=" + value + ", enabled="
+				+ enabled + ", clazz=" + clazz + "]";
 	}
-
+	
 }

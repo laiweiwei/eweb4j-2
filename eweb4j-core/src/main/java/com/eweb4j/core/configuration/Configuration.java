@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public interface Configuration<K, V> {
 
+	public void init();
+	
 	public Map<K, V> getMap();
 	
 	public void put(K key, V value);
@@ -24,7 +26,7 @@ public interface Configuration<K, V> {
 	
 	public V next();
 	
-	public V get(K key);
+	public V get(K key, Object... args);
 	
 	public List<Double> getListDouble(K key, String split) ;
 	

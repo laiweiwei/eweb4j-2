@@ -5,6 +5,7 @@ import static com.eweb4j.core.EWeb4J.Constants.Configurations.ORM_ID;
 
 import java.util.List;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.MapConfiguration;
@@ -35,7 +36,8 @@ public class ORMPlugin extends Plugin{
 	}
 
 	@Override
-	public void init(ConfigurationFactory configFactory) {
+	public void init(EWeb4J eweb4j) {
+		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
 		this.ormConfig = configFactory.getConfiguration(ORM_ID);
 		
 		//构建JPA实体类配置信息存放容器

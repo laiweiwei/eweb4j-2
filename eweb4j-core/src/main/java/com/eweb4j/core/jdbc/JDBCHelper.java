@@ -51,8 +51,10 @@ public class JDBCHelper {
 		} finally {
 			close(null, pstmt, con);
 			System.out.println("---- EWEB4J SQL ----");
-			System.out.println("---- "+sql+" ----");
-			System.out.println("---- "+Arrays.asList(args)+" ----");
+			if (args != null && args.length > 0)
+				System.out.println("---- "+sql+" " + Arrays.asList(args)+" ----");
+			else
+				System.out.println("---- "+sql+" ----");
 		}
 
 		return result;
@@ -104,17 +106,17 @@ public class JDBCHelper {
 			e.printStackTrace();
 		} finally {
 			close(null, pstmt, con);
-			System.out.println("---- EWEB4J SQL ----");
-			System.out.println("---- "+sql+" ----");
-			StringBuilder sb = new StringBuilder();
-			for (Object[] _args : args){
-				if (sb.length() > 0)
-					sb.append(",");
-				
-				sb.append(Arrays.asList(_args));
-			}
-			
-			System.out.println("---- ["+sb.toString()+"] ----");
+			if (args != null && args.length > 0) {
+				StringBuilder sb = new StringBuilder();
+				for (Object[] _args : args){
+					if (sb.length() > 0)
+						sb.append(",");
+					
+					sb.append(Arrays.asList(_args));
+				}
+				System.out.println("---- "+sql+" ["+sb.toString()+"]");
+			} else
+				System.out.println("---- "+sql+" ----");
 		}
 
 		return result;
@@ -172,8 +174,10 @@ public class JDBCHelper {
 		} finally {
 			close(rs, pstmt, con);
 			System.out.println("---- EWEB4J SQL ----");
-			System.out.println("---- "+sql+" ----");
-			System.out.println("---- "+Arrays.asList(args)+" ----");
+			if (args != null && args.length > 0)
+				System.out.println("---- "+sql+" " + Arrays.asList(args)+" ----");
+			else
+				System.out.println("---- "+sql+" ----");
 		}
 
 		return result;

@@ -1,7 +1,7 @@
 package com.eweb4j.core.plugin;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.Configuration;
-import com.eweb4j.core.configuration.ConfigurationFactory;
 
 
 /**
@@ -11,13 +11,6 @@ import com.eweb4j.core.configuration.ConfigurationFactory;
  */
 public abstract class PluginManager {
 
-	/**
-	 * 获取配置工厂
-	 * @return
-	 */
-	public abstract ConfigurationFactory getConfigFactory();
-	
-	
 	/**
 	 * 获取插件仓库
 	 * @return
@@ -37,7 +30,7 @@ public abstract class PluginManager {
 	 * @date 2013-6-13 上午11:08:54
 	 * @param plugin
 	 */
-	public abstract boolean install(Plugin plugin);
+	public abstract boolean install(Plugin plugin, EWeb4J eweb4j);
 	
 	/**
 	 * 卸载插件 
@@ -53,7 +46,7 @@ public abstract class PluginManager {
 	 * @param plugin
 	 * @return
 	 */
-	public abstract boolean upgrade(Plugin plugin);
+	public abstract boolean upgrade(Plugin plugin, EWeb4J eweb4j);
 	
 	/**
 	 * 停止所有插件 

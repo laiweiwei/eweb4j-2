@@ -22,7 +22,8 @@ public class DruidPlugin extends Plugin{
 	/**
 	 * 初始化
 	 */
-	public void init(ConfigurationFactory configFactory){
+	public void init(EWeb4J eweb4j){
+		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
 		this.jdbcConfig = configFactory.getConfiguration(EWeb4J.Constants.Configurations.JDBC_ID);
 		
 		//准备好数据源容器

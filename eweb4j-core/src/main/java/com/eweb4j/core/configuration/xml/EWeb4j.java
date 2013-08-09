@@ -22,8 +22,7 @@ public class EWeb4j {
 
 	@Override
 	public String toString() {
-		return "EWeb4J [configurations=" + configurations + "]";
+		return "EWeb4j [configurations=" + configurations + "]";
 	}
-
 
 }

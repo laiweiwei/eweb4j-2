@@ -16,6 +16,8 @@ public class Configuration {
 	private List<Property> properties = new ArrayList<Property>();
 	@ElementList(required=false)
 	private List<FilePath> files = new ArrayList<FilePath>();
+	@Attribute(required=false)
+	private String clazz;
 	
 	public String getId() {
 		return id;
@@ -41,10 +43,17 @@ public class Configuration {
 	public void setFiles(List<FilePath> files) {
 		this.files = files;
 	}
+	
+	public String getClazz() {
+		return clazz;
+	}
+	public void setClazz(String clazz) {
+		this.clazz = clazz;
+	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", type=" + type + ", properties="
-				+ properties + ", files=" + files + "]";
+				+ properties + ", files=" + files + ", clazz=" + clazz + "]";
 	}
 	
 }

@@ -29,6 +29,13 @@ public interface ConfigurationFactory {
 	public <V> Configuration<String, V> getJdbcConfig();
 	
 	/**
+	 * 获取feature容器
+	 * @param <V>
+	 * @return
+	 */
+	public <V> Configuration<String, V> getFeature();
+	
+	/**
 	 * 根据ID获取对应的配置内容
 	 * @param id
 	 * @return
@@ -73,10 +80,16 @@ public interface ConfigurationFactory {
 	String getAbsolutePathOfView();
 	
 	/**
-	 * 获取监听器
+	 * 获取监听器实现类列表
 	 * @return
 	 */
 	List<String> getListeners();
+	
+	/**
+	 * 获取插件实现类列表
+	 * @return
+	 */
+	List<String> getPlugins();
 	
 	/**
 	 * 获取JPA注解信息
