@@ -120,7 +120,7 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 				List<FilePath> filePaths = config.getFiles();
 				configuration = new MapConfiguration<String, Object>();
 				if (filePaths != null && !filePaths.isEmpty()) {
-					String configClass = config.getClazz();
+					String configClass = config.getHolder();
 					for (FilePath filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
@@ -220,8 +220,8 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <V> Configuration<String, V> getToolbox(){
-		return (Configuration<String, V>)configs.get(TOOLBOX_ID);
+	public <V> Configuration<String, V> getFeatures(){
+		return (Configuration<String, V>)configs.get(FEATURE_ID);
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package com.eweb4j.orm.toolbox;
+package com.eweb4j.orm.db;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,16 +13,16 @@ import java.util.Map.Entry;
 import javax.sql.DataSource;
 
 import com.eweb4j.core.EWeb4J;
+import com.eweb4j.core.feature.Feature;
 import com.eweb4j.core.jdbc.JDBCHelper;
 import com.eweb4j.core.jdbc.JDBCRow;
-import com.eweb4j.core.toolbox.Toolbox;
 import com.eweb4j.orm.PojoMappings;
 import com.eweb4j.orm.config.JPAClassInfo;
 import com.eweb4j.orm.config.JPAFieldInfo;
 import com.eweb4j.orm.config.JoinType;
 import com.eweb4j.utils.ReflectUtil;
 
-public class SqlTool<T> implements Toolbox{
+public class SQL<T> implements Feature{
 	
 	protected EWeb4J eweb4j = null;
 	protected DataSource dataSource = null;
@@ -59,12 +59,12 @@ public class SqlTool<T> implements Toolbox{
 		return this.pojo;
 	}
 	
-	public SqlTool<T> alias(String alias) {
+	public SQL<T> alias(String alias) {
 		this.alias = alias;
 		return this;
 	}
 
-	public SqlTool<T> join(String field, String alias) {
+	public SQL<T> join(String field, String alias) {
 		this.joins.put(field, alias);
 		return this;
 	}

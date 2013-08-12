@@ -4,10 +4,10 @@ import java.util.List;
 
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
+import com.eweb4j.core.feature.Feature;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
-import com.eweb4j.core.toolbox.Toolbox;
 
 /**
  * 单纯的EWeb4J实现
@@ -81,11 +81,11 @@ public class SimpleEWeb4J implements EWeb4J{
 
 	/**
 	 * 从IOC容器里获取一个具有某种特性的对象，比如DAO对象
-	 * @param feature ioc配置的pojo id
+	 * @param featureName
 	 * @param args 构造器参数
 	 */
-	public <T extends Toolbox> T getToolbox(String toolName, Object... args) {
-		return this.eweb4j.getToolbox(toolName, args);
+	public <T extends Feature> T getFeature(String featureName, Object... args) {
+		return this.eweb4j.getFeature(featureName, args);
 	}
 
 }

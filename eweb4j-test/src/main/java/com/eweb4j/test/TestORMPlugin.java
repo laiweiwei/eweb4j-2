@@ -2,8 +2,9 @@ package com.eweb4j.test;
 
 import java.util.List;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.SimpleEWeb4J;
-import com.eweb4j.orm.toolbox.SqlTool;
+import com.eweb4j.orm.db.SQL;
 
 /**
  * 测试ORM插件功能
@@ -17,21 +18,21 @@ public class TestORMPlugin {
 		final String xml = "src/main/resources/eweb4j-config.xml";
 		
 		//构建框架实例
-		SimpleEWeb4J eweb4j = new SimpleEWeb4J(xml);
+		EWeb4J eweb4j = new SimpleEWeb4J(xml);
 		
 		Pets p = new Pets();
 		p.setNickname("小黄2");
 		p.setNumber("95278");
 		p.setAge(8);
-		SqlTool<Pets> db = eweb4j.getToolbox("sql", p);
+		SQL<Pets> sql = eweb4j.getFeature("sql", p);
 		
-		Number number = db.update("insert into #table(#columns) values(#values)");
+		Number number = sql.update("insert into #table(#columns) values(#values)");
 		System.out.println("insert->"+number);
 		
-		List<Pets> pets = db.query("select * from #table");
+		List<Pets> pets = sql.query("select * from #table");
 		System.out.println("pet->"+pets);
 		
-		pets = db.alias("p").join("user", "u")
+		pets = sql.alias("p").join("user", "u")
 			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
 		
 		System.out.println("pet->"+pets);

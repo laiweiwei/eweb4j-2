@@ -1,4 +1,4 @@
-package com.eweb4j.orm.toolbox;
+package com.eweb4j.orm.db;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.eweb4j.orm.config.JPAFieldInfo;
 
-public class DAOTool<T> extends SqlTool<T>{
+public class DAO<T> extends SQL<T>{
 
 	private Object _get_id(){
 		String idField = super.jpa.id;

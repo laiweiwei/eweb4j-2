@@ -29,13 +29,6 @@ public interface ConfigurationFactory {
 	public <V> Configuration<String, V> getJdbcConfig();
 	
 	/**
-	 * 获取Toolbox容器
-	 * @param <V>
-	 * @return
-	 */
-	public <V> Configuration<String, V> getToolbox();
-	
-	/**
 	 * 根据ID获取对应的配置内容
 	 * @param id
 	 * @return
@@ -90,6 +83,13 @@ public interface ConfigurationFactory {
 	 * @return
 	 */
 	List<String> getPlugins();
+	
+	/**
+	 * 获取Feature容器
+	 * @param <V>
+	 * @return
+	 */
+	public <V> Configuration<String, V> getFeatures();
 	
 	/**
 	 * 获取JPA注解信息

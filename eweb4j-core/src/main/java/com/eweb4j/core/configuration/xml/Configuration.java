@@ -17,7 +17,7 @@ public class Configuration {
 	@ElementList(required=false)
 	private List<FilePath> files = new ArrayList<FilePath>();
 	@Attribute(required=false)
-	private String clazz;
+	private String holder;//容器处理类名
 	
 	public String getId() {
 		return id;
@@ -44,16 +44,16 @@ public class Configuration {
 		this.files = files;
 	}
 	
-	public String getClazz() {
-		return clazz;
+	public String getHolder() {
+		return holder;
 	}
-	public void setClazz(String clazz) {
-		this.clazz = clazz;
+	public void setHolder(String holder) {
+		this.holder = holder;
 	}
 	@Override
 	public String toString() {
 		return "Configuration [id=" + id + ", type=" + type + ", properties="
-				+ properties + ", files=" + files + ", clazz=" + clazz + "]";
+				+ properties + ", files=" + files + ", holder=" + holder + "]";
 	}
 	
 }

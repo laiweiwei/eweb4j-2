@@ -9,8 +9,8 @@
 		-->
 		<configuration id="base">
 			<properties>
-				<!--property name="absolute_path_of_root" value="D:/PROJECTS/vivi/eweb4j-2/eweb4j-test" /-->
-				<property name="absolute_path_of_root" value="D:\Java\JEE\EclipseWorkSpace\24A\eweb4j-parent\eweb4j-test" />
+				<property name="absolute_path_of_root" value="D:/PROJECTS/vivi/eweb4j-2/eweb4j-test" />
+				<!--property name="absolute_path_of_root" value="D:\Java\JEE\EclipseWorkSpace\24A\eweb4j-parent\eweb4j-test" /-->
 				<property name="relative_path_of_view" value="/WEB-INF/view" />
 			</properties>
 		</configuration>
@@ -52,6 +52,7 @@
 		<configuration id="mvc">
 			<properties>
 				<property name="absollute_path_of_view" value="${absolute_path_of_root}${relative_path_of_view}" />
+				<property name="controller" value="controller.RolesController" />
 			</properties>
 		</configuration>
 		
@@ -68,9 +69,9 @@
 			</properties>
 		</configuration>
 		<!--
-		  | Toolbox 配置
+		  | Feature 配置
 		-->
-		<configuration id="toolbox" type="xml" clazz="com.eweb4j.core.configuration.IOCConfiguration" >
+		<configuration id="feature" type="xml" holder="com.eweb4j.core.ioc.PojoFactory" >
 			<files>
 				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" />
 			</files>
