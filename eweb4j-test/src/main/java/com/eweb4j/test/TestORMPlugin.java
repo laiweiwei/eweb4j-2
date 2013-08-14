@@ -26,6 +26,7 @@ public class TestORMPlugin {
 		p.setNickname("小黄2");
 		p.setNumber("95278");
 		p.setAge(8);
+		//从IOC容器里获取DAO实例
 		DAO dao = ioc.getInstance("dao", p);
 		
 		//这种行为会将插入后的newID注入到p对象
