@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import javax.sql.DataSource;
 
 import com.eweb4j.core.EWeb4J;
-import com.eweb4j.core.feature.Feature;
 import com.eweb4j.core.jdbc.JDBCHelper;
 import com.eweb4j.core.jdbc.JDBCRow;
 import com.eweb4j.orm.PojoMappings;
@@ -22,54 +21,60 @@ import com.eweb4j.orm.config.JPAFieldInfo;
 import com.eweb4j.orm.config.JoinType;
 import com.eweb4j.utils.ReflectUtil;
 
-public class SQL<T> implements Feature{
+public class SQL{
 	
 	protected EWeb4J eweb4j = null;
 	protected DataSource dataSource = null;
-	protected PojoMappings<T> pojoMappings = null;
+	protected PojoMappings pojoMappings = null;
 	protected ReflectUtil reflectUtil = null;
-	protected Class<T> cls = null;
-	protected T pojo = null;
+	protected Class<?> cls = null;
+	protected Object pojo = null;
 	protected JPAClassInfo jpa = null;
 	protected String alias = "";
 	protected HashMap<String, String> joins = new HashMap<String, String>();
 
-	public void init(EWeb4J eweb4j, Object... args) {
-		this._init(eweb4j, args[0]);
+	public SQL(){}
+	
+	public SQL(EWeb4J eweb4j, Object anything){
+		setPojo(anything);
+		setEWeb4J(eweb4j);
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void _init(EWeb4J eweb4j, Object obj) {
+	public void setEWeb4J(EWeb4J eweb4j){
 		this.eweb4j = eweb4j;
-		if (Class.class.isInstance(obj)) {
-			this.cls = (Class<T>) obj;
-			this.reflectUtil = new ReflectUtil(this.cls);
-			this.pojo = (T) this.reflectUtil.getObject();
-		}else{
-			this.pojo = (T) obj;
-			this.reflectUtil = new ReflectUtil(this.pojo);
-			this.cls = (Class<T>) this.pojo.getClass();
-		}
 		this.jpa = this.eweb4j.getConfigFactory().getJPA(this.cls.getName());
-		this.pojoMappings = new PojoMappings<T>(this.cls, this.eweb4j.getConfigFactory());
+		this.pojoMappings = new PojoMappings(this.cls, this.eweb4j.getConfigFactory());
 		this.dataSource = this.eweb4j.getConfigFactory().getDefaultDataSource();
 	}
 	
-	public T getPojo(){
-		return this.pojo;
+	public void setPojo(Object anything){
+		if (Class.class.isInstance(anything)) {
+			this.cls = (Class<?>) anything;
+			this.reflectUtil = new ReflectUtil(this.cls);
+			this.pojo = this.reflectUtil.getObject();
+		}else{
+			this.pojo = anything;
+			this.reflectUtil = new ReflectUtil(this.pojo);
+			this.cls = this.pojo.getClass();
+		}
 	}
 	
-	public SQL<T> alias(String alias) {
+	@SuppressWarnings("unchecked")
+	public <T> T getPojo(){
+		return (T) this.pojo;
+	}
+	
+	public SQL alias(String alias) {
 		this.alias = alias;
 		return this;
 	}
 
-	public SQL<T> join(String field, String alias) {
+	public SQL join(String field, String alias) {
 		this.joins.put(field, alias);
 		return this;
 	}
 
-	public T queryOne(String eql, Object... _args) {
+	public <T> T queryOne(String eql, Object... _args) {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		
@@ -80,7 +85,7 @@ public class SQL<T> implements Feature{
 		return list == null ? null : list.isEmpty() ? null : list.get(0);
 	}
 	
-	public List<T> query(String eql, Object... _args) {
+	public <T> List<T> query(String eql, Object... _args) {
 		List<Object> args = new ArrayList<Object>();
 		if (_args != null) args.addAll(Arrays.asList(_args));
 		String sql = fmtSql(pojo.getClass(), reflectUtil, alias, joins, eql, args);

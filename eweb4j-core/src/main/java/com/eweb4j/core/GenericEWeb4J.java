@@ -3,9 +3,8 @@ package com.eweb4j.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.core.feature.Feature;
+import com.eweb4j.core.ioc.IOC;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 
@@ -19,6 +18,7 @@ public class GenericEWeb4J implements EWeb4J{
 	
 	private ConfigurationFactory configFactory = null;
 	private PluginManager pluginManager = null;
+	private IOC ioc = null;
 	
 	private List<Listener> listeners = new ArrayList<Listener>();
 	private List<Plugin> plugins = new ArrayList<Plugin>();
@@ -92,19 +92,12 @@ public class GenericEWeb4J implements EWeb4J{
 		return this;
 	}
 
-	/**
-	 * 从IOC容器里获取一个具有某种特性的对象，比如DAO对象
-	 * @param feature 
-	 * @param args 构造器参数
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends Feature> T getFeature(String featureName, Object... args) {
-		Configuration<String, Feature> features = this.configFactory.getFeatures();
-		if (features == null) return null;
-		Feature feature = features.get(featureName);
-		if (feature == null) return null;
-		feature.init(this, args);
-		return (T) feature;
+	public IOC getIOC() {
+		return this.ioc;
 	}
-	
+
+	public void setIOC(IOC ioc) {
+		this.ioc = ioc;
+	}
+
 }

@@ -22,6 +22,13 @@ public interface ConfigurationFactory {
 	public <V> Configuration<String, V> getBaseConfig();
 	
 	/**
+	 * 获取IOC配置容器
+	 * @param <V>
+	 * @return
+	 */
+	public <V> Configuration<String, V> getIOCConfig();
+	
+	/**
 	 * 获取jdbc配置信息
 	 * @param <V>
 	 * @return
@@ -83,13 +90,6 @@ public interface ConfigurationFactory {
 	 * @return
 	 */
 	List<String> getPlugins();
-	
-	/**
-	 * 获取Feature容器
-	 * @param <V>
-	 * @return
-	 */
-	public <V> Configuration<String, V> getFeatures();
 	
 	/**
 	 * 获取JPA注解信息

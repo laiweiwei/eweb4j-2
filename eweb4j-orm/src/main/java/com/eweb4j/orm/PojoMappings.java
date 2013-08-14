@@ -13,17 +13,18 @@ import com.eweb4j.orm.config.JoinType;
 import com.eweb4j.utils.ClassUtil;
 import com.eweb4j.utils.ReflectUtil;
 
-public class PojoMappings<T> {
+public class PojoMappings {
 
-	private Class<T> cls;
+	private Class<?> cls;
 	private ConfigurationFactory configFactory = null;
 	
-	public PojoMappings(Class<T> cls, ConfigurationFactory configFactory){
+	public PojoMappings(Class<?> cls, ConfigurationFactory configFactory){
 		this.cls = cls;
 		this.configFactory = configFactory;
 	}
 	
-	public List<T> mapping(List<JDBCRow> rows) {
+	@SuppressWarnings("unchecked")
+	public <T> List<T> mapping(List<JDBCRow> rows) {
 		if (rows == null || rows.isEmpty()) 
 			return null;
 		
@@ -32,7 +33,7 @@ public class PojoMappings<T> {
 		T t = null;
 		for (JDBCRow row : rows) {
 			try {
-				t = cls.newInstance();
+				t = (T) cls.newInstance();
 				ReflectUtil ru = new ReflectUtil(t);
 				for (JPAFieldInfo jpa : jpaInfo.fieldInfos) {
 					String relCol = jpa.relCol;

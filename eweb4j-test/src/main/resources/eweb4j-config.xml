@@ -69,11 +69,11 @@
 			</properties>
 		</configuration>
 		<!--
-		  | Feature 配置
+		  | IOC 配置
 		-->
-		<configuration id="feature" type="xml" holder="com.eweb4j.core.ioc.PojoFactory" >
+		<configuration id="ioc" type="xml" holder="com.eweb4j.core.ioc.IOCConfiguration" >
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" />
+				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" enabled="1" />
 			</files>
 		</configuration>
 	</configurations>

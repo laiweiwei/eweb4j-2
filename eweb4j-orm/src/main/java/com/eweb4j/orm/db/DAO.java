@@ -4,17 +4,26 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.orm.config.JPAFieldInfo;
 
-public class DAO<T> extends SQL<T>{
+public class DAO extends SQL{
 
+	public DAO(){
+		super();
+	}
+	
+	public DAO(EWeb4J eweb4j, Object anything){
+		super(eweb4j, anything);
+	}
+	
 	private Object _get_id(){
 		String idField = super.jpa.id;
 		Method idGetter = super.reflectUtil.getGetter(idField);
 		if (idGetter == null) return null;
 		
 		try {
-			return idGetter.invoke(super.pojo);
+			return idGetter.invoke(super.reflectUtil.getObject());
 		} catch (Throwable e){
 			e.printStackTrace();
 		}
@@ -41,7 +50,7 @@ public class DAO<T> extends SQL<T>{
 		if (idSetter == null)
 			return ;
 		try {
-			idSetter.invoke(super.pojo, idVal.longValue());
+			idSetter.invoke(super.reflectUtil.getObject(), idVal.longValue());
 		} catch (Throwable e){
 			e.printStackTrace();
 			return ;
@@ -74,7 +83,7 @@ public class DAO<T> extends SQL<T>{
 				JPAFieldInfo f = jpa.getFieldInfoByField(field);
 				sb.append(f.column).append("=?");
 				Method fieldGetter = super.reflectUtil.getGetter(field);
-				Object value = fieldGetter.invoke(this);
+				Object value = fieldGetter.invoke(super.reflectUtil.getObject());
 				args.add(value);
 			} catch (Throwable e) {
 				e.printStackTrace();

@@ -129,14 +129,13 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
 			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
 						//读取xml文件
-			        	String xmlBeanClass = filePathBean.getClazz();
 			        	@SuppressWarnings("unchecked")
-						Class<XMLConfiguration<Object>> cls = (Class<XMLConfiguration<Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
-			        	XMLConfiguration<Object> c = cls.newInstance();
+						Class<XMLConfiguration<String, Object>> cls = (Class<XMLConfiguration<String, Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
+			        	XMLConfiguration<String, Object> c = cls.newInstance();
 			        	c.setXml(f.getAbsolutePath());
-			        	c.setXmlBeanClass(xmlBeanClass);
 			        	c.setContext(context);
-			        	c.init();
+			        	//解析xml文件
+			        	c.parseXml();
 			        	//将对应ID的配置信息添加到内存里
 						this.configs.put(id, c);
 						//存储<property>节点
@@ -220,8 +219,8 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <V> Configuration<String, V> getFeatures(){
-		return (Configuration<String, V>)configs.get(FEATURE_ID);
+	public <V> Configuration<String, V> getIOCConfig(){
+		return (Configuration<String, V>)configs.get(IOC_ID);
 	}
 	
 	/**

@@ -19,5 +19,10 @@ public class IOC {
 	public void setPojos(List<com.eweb4j.core.configuration.xml.Pojo> pojos) {
 		this.pojos = pojos;
 	}
+
+	@Override
+	public String toString() {
+		return "IOC [pojos=" + pojos + "]";
+	}
 	
 }

@@ -3,7 +3,7 @@ package com.eweb4j.core;
 import java.util.List;
 
 import com.eweb4j.core.configuration.ConfigurationFactory;
-import com.eweb4j.core.feature.Feature;
+import com.eweb4j.core.ioc.IOC;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 
@@ -16,13 +16,16 @@ import com.eweb4j.core.plugin.PluginManager;
 public interface EWeb4J {
 	
 	/**
-	 * 获取一个具有某种特性的对象，比如DAO对象
-	 * @param <T extends Feature>
-	 * @param toolName
-	 * @param args
+	 * 设置IOC容器实例
+	 * @param ioc
+	 */
+	public void setIOC(IOC ioc);
+	
+	/**
+	 * 获取IOC容器
 	 * @return
 	 */
-	public <T extends Feature> T getFeature(String feature, Object... args);
+	public IOC getIOC();
 	
 	/**
 	 * 获取插件管理器
@@ -99,7 +102,7 @@ public interface EWeb4J {
 			String JDBC_ID = "jdbc";
 			String LISTENER_ID = "listener";
 			String DATA_SOURCE_ID = "data_source";
-			String FEATURE_ID = "feature";
+			String IOC_ID = "ioc";
 			
 			public static interface Types{
 				String PROPERTIES = "properties";

@@ -2,9 +2,12 @@ package com.eweb4j.core;
 
 import java.util.List;
 
+import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.feature.Feature;
+import com.eweb4j.core.configuration.xml.Pojo;
+import com.eweb4j.core.ioc.EWeb4JIOC;
+import com.eweb4j.core.ioc.IOC;
 import com.eweb4j.core.plugin.Plugin;
 import com.eweb4j.core.plugin.PluginManager;
 import com.eweb4j.core.plugin.PluginManagerImpl;
@@ -39,6 +42,13 @@ public class SimpleEWeb4J implements EWeb4J{
 			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
+		}
+		
+		//设置IOC容器
+		//FIXME 重构，去掉EWeb4J和EWeb4JIOC的循环引用
+		Configuration<String, Pojo> iocConfig = eweb4j.getConfigFactory().getIOCConfig();
+		if (iocConfig != null){
+			this.eweb4j.setIOC(new EWeb4JIOC(this.eweb4j));
 		}
 		
 		//准备完毕，启动框架
@@ -79,13 +89,12 @@ public class SimpleEWeb4J implements EWeb4J{
 		return this;
 	}
 
-	/**
-	 * 从IOC容器里获取一个具有某种特性的对象，比如DAO对象
-	 * @param featureName
-	 * @param args 构造器参数
-	 */
-	public <T extends Feature> T getFeature(String featureName, Object... args) {
-		return this.eweb4j.getFeature(featureName, args);
+	public void setIOC(IOC ioc) {
+		this.eweb4j.setIOC(ioc);
+	}
+
+	public IOC getIOC() {
+		return this.eweb4j.getIOC();
 	}
 
 }

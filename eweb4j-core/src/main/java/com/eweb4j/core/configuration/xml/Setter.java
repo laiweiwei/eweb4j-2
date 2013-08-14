@@ -25,7 +25,7 @@ public class Setter {
 	 * 基本数据值
 	 */
 	@Attribute(required=false)
-	private Object value;
+	private String value;
 	
 	public String getRefer() {
 		return refer;
@@ -45,10 +45,10 @@ public class Setter {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public Object getValue() {
+	public String getValue() {
 		return value;
 	}
-	public void setValue(Object value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 	@Override

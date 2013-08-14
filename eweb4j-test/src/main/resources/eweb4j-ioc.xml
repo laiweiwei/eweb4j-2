@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   | 这是EWeb4J-2.X的 IOC 配置文件
+  | ${xxx}, xxx->匹配字母或数字或下划线或汉字
 -->
 <ioc>
 	<pojos>
-		<pojo id="sql" clazz="com.eweb4j.orm.db.SQL" />
-		<pojo id="dao" clazz="com.eweb4j.orm.db.DAO" />
+		<pojo id="sql" clazz="com.eweb4j.orm.db.SQL">
+			<constructors>
+				<constructor type="com.eweb4j.core.EWeb4J" refer="${eweb4j}" />
+				<constructor type="java.lang.Object" refer="${args[0]}" />
+			</constructors>
+		</pojo>
+		<pojo id="dao" clazz="com.eweb4j.orm.db.DAO">
+			<constructors>
+				<constructor type="com.eweb4j.core.EWeb4J" refer="${eweb4j}" />
+				<constructor type="java.lang.Object" refer="${args[0]}" />
+			</constructors>
+		</pojo>
 	</pojos>
 </ioc>
