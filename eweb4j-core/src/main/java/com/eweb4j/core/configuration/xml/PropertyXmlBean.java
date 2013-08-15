@@ -2,7 +2,7 @@ package com.eweb4j.core.configuration.xml;
 
 import org.simpleframework.xml.Attribute;
 
-public class Property {
+public class PropertyXmlBean {
 
 	@Attribute
 	private String name;

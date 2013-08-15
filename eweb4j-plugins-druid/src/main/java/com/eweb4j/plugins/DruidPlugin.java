@@ -16,25 +16,32 @@ import com.eweb4j.core.plugin.Plugin;
  */
 public class DruidPlugin extends Plugin{
 
+	/**
+	 * JDBC 配置信息
+	 */
 	private Configuration<String, String> jdbcConfig = null;
-	private Configuration<String, DataSource> dsConfig = null;
+	/**
+	 * 数据源容器
+	 */
+	private Configuration<String, DataSource> dsHolder = null;
 	
 	/**
 	 * 初始化
 	 */
 	public void init(EWeb4J eweb4j){
 		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
-		this.jdbcConfig = configFactory.getConfiguration(EWeb4J.Constants.Configurations.JDBC_ID);
+		this.jdbcConfig = configFactory.getJdbcConfig();
 		
+		final String dsConfigID = EWeb4J.Constants.Configurations.DATA_SOURCE_ID;
 		//准备好数据源容器
-		Configuration<String, DataSource> dsConfig = configFactory.getConfiguration(EWeb4J.Constants.Configurations.DATA_SOURCE_ID);
-		if (dsConfig == null) {
+		Configuration<String, DataSource> dsHolder = configFactory.getConfiguration(dsConfigID);
+		if (dsHolder == null) {
 			//如果没有，初始化一个容器
-			dsConfig = new MapConfiguration<String, DataSource>();
-			configFactory.addConfiguration(EWeb4J.Constants.Configurations.DATA_SOURCE_ID, dsConfig);
+			dsHolder = new MapConfiguration<String, DataSource>();
+			configFactory.addConfiguration(dsConfigID, dsHolder);
 		}
 		
-		this.dsConfig = dsConfig;
+		this.dsHolder = dsHolder;
 	}
 	
 	public void start() {
@@ -52,12 +59,12 @@ public class DruidPlugin extends Plugin{
 			
 			System.out.println("add ds to dsConfig->" + dsName);
 			//将数据源实例添加到容器里
-			this.dsConfig.put(dsName, ds);
+			this.dsHolder.put(dsName, ds);
 		}
 	}
 
 	public void stop() {
-		this.dsConfig.clear();
+		this.dsHolder.clear();
 	}
 
 	public String ID() {

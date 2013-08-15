@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  | 这是EWeb4J-2.X的 IOC 配置文件
+-->
+<ioc>
+	<pojos>
+		<pojo id="pet" clazz="com.eweb4j.test.Pets">
+			<setters>
+				<setter name="number" value="9527" />
+				<setter name="nickname" type="" value="小黄鸡" />
+			</setters>
+		</pojo>
+	</pojos>
+</ioc>

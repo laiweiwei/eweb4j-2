@@ -14,9 +14,10 @@ import org.simpleframework.xml.core.Persister;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.EWeb4J.Constants.Configurations.Types;
-import com.eweb4j.core.configuration.xml.EWeb4j;
-import com.eweb4j.core.configuration.xml.FilePath;
-import com.eweb4j.core.configuration.xml.Property;
+import com.eweb4j.core.configuration.xml.ConfigurationXmlBean;
+import com.eweb4j.core.configuration.xml.EWeb4JXmlBean;
+import com.eweb4j.core.configuration.xml.FileXmlBean;
+import com.eweb4j.core.configuration.xml.PropertyXmlBean;
 
 public class ConfigurationFactoryImpl implements ConfigurationFactory{
 
@@ -33,19 +34,19 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		
 		//使用spring的simple-xml组件解析XML为POJO
 		Serializer serializer = new Persister();
-		EWeb4j eweb4j = serializer.read(EWeb4j.class, xml);
+		EWeb4JXmlBean eweb4j = serializer.read(EWeb4JXmlBean.class, xml);
 		if (eweb4j == null) return null;
 		
-		List<com.eweb4j.core.configuration.xml.Configuration> configs = eweb4j.getConfigurations();
-		for (com.eweb4j.core.configuration.xml.Configuration config : configs) {
+		List<ConfigurationXmlBean> configs = eweb4j.getConfigurations();
+		for (ConfigurationXmlBean config : configs) {
 			Configuration<String, String> configuration = null;
 			String id = config.getId();
 			//只要base的配置
 			if (!BASE_ID.equals(id)) continue;
-			List<Property> propertiesBean = config.getProperties();
+			List<PropertyXmlBean> propertiesBean = config.getProperties();
 			if (propertiesBean == null || propertiesBean.isEmpty()) continue;
 			configuration = new MapConfiguration<String, String>(propertiesBean.size());
-			for (Property p : propertiesBean) {
+			for (PropertyXmlBean p : propertiesBean) {
 				//若不开启，跳过
 				if (0 == p.getEnabled()) continue;
 				
@@ -58,9 +59,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return null;
 	}
 	
-	private void storeProperties(Configuration<String, Object> configuration, List<Property> propertiesBean){
+	private void storeProperties(Configuration<String, Object> configuration, List<PropertyXmlBean> propertiesBean){
 		Map<String, StringBuilder> arrayMap = new HashMap<String, StringBuilder>();
-		for (Property p : propertiesBean) {
+		for (PropertyXmlBean p : propertiesBean) {
 			//若不开启，跳过
 			if (0 == p.getEnabled()) continue;
 			
@@ -91,21 +92,21 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	private void storeConfigsFromXml(File xml, Map<?,?> context) throws Throwable{
 		//使用spring的simple-xml组件解析XML为POJO
 		Serializer serializer = new Persister(context);
-		EWeb4j eweb4j = serializer.read(EWeb4j.class, xml);
+		EWeb4JXmlBean eweb4j = serializer.read(EWeb4JXmlBean.class, xml);
 		if (eweb4j == null) return ;
 	
-		List<com.eweb4j.core.configuration.xml.Configuration> configs = eweb4j.getConfigurations();
-		outer:for (com.eweb4j.core.configuration.xml.Configuration config : configs) {
+		List<ConfigurationXmlBean> configs = eweb4j.getConfigurations();
+		for (ConfigurationXmlBean config : configs) {
 			Configuration<String, Object> configuration = null;
 			String id = config.getId();
 			String type = config.getType();
-			List<Property> propertyBeans = config.getProperties();
+			List<PropertyXmlBean> propertyBeans = config.getProperties();
 			//根据不同的类型处理不同配置信息的获取来源
 			if (Types.PROPERTIES.equals(type)) {
-				List<FilePath> filePaths = config.getFiles();
+				List<FileXmlBean> filePaths = config.getFiles();
 				configuration = new MapConfiguration<String, Object>();
 				if (filePaths != null && !filePaths.isEmpty()) {
-					for (FilePath filePathBean : filePaths) {
+					for (FileXmlBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
 						String filePath = filePathBean.getPath();
@@ -117,32 +118,33 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 					}
 				}
 			} else if (Types.XML.equals(type)){
-				List<FilePath> filePaths = config.getFiles();
-				configuration = new MapConfiguration<String, Object>();
+				List<FileXmlBean> filePaths = config.getFiles();
 				if (filePaths != null && !filePaths.isEmpty()) {
 					String configClass = config.getHolder();
-					for (FilePath filePathBean : filePaths) {
+					@SuppressWarnings("unchecked")
+					Class<XMLConfiguration<String, Object>> cls = (Class<XMLConfiguration<String, Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
+					configuration = cls.newInstance();
+					XMLConfiguration<String, Object> c = (XMLConfiguration<String, Object>)configuration;
+					for (FileXmlBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
 						String filePath = filePathBean.getPath();
 						File f = new File(filePath);
 						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
 			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
-						//读取xml文件
-			        	@SuppressWarnings("unchecked")
-						Class<XMLConfiguration<String, Object>> cls = (Class<XMLConfiguration<String, Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
-			        	XMLConfiguration<String, Object> c = cls.newInstance();
-			        	c.setXml(f.getAbsolutePath());
-			        	c.setContext(context);
+						
 			        	//解析xml文件
-			        	c.parseXml();
-			        	//将对应ID的配置信息添加到内存里
-						this.configs.put(id, c);
-						//存储<property>节点
-						this.storeProperties(c, propertyBeans);
-						continue outer;
+			        	c.parseXml(f.getAbsolutePath(), context);
 					}
+					
+					//存储<property>节点
+					this.storeProperties(configuration, propertyBeans);
+					
+					//将对应ID的配置信息添加到内存里
+					this.configs.put(id, configuration);
 				}
+				
+				continue;
 			} else {
 				configuration = new MapConfiguration<String, Object>(propertyBeans.size());
 			}
@@ -331,14 +333,6 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		Configuration<String, ?> config = getConfiguration(JPA_ID);
 		if (config == null) return null;
 		return (T) config.get(entityClass);
-	}
-	
-	public static void main(String[] args){
-		ConfigurationFactory factory = new ConfigurationFactoryImpl("src/main/resources/eweb4j-config.xml");
-		System.out.println(factory.getBaseConfig().getMap());
-		System.out.println(factory.getConfiguration("mvc").getMap());
-		System.out.println(factory.getConfiguration("jdbc").getMap());
-		System.out.println(factory.getConfiguration("listener").getListString("class"));
 	}
 
 }

@@ -6,16 +6,16 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-public class Configuration {
+public class ConfigurationXmlBean {
 
 	@Attribute
 	private String id;
 	@Attribute(required=false)
 	private String type;
 	@ElementList(required=false)
-	private List<Property> properties = new ArrayList<Property>();
+	private List<PropertyXmlBean> properties = new ArrayList<PropertyXmlBean>();
 	@ElementList(required=false)
-	private List<FilePath> files = new ArrayList<FilePath>();
+	private List<FileXmlBean> files = new ArrayList<FileXmlBean>();
 	@Attribute(required=false)
 	private String holder;//容器处理类名
 	
@@ -31,16 +31,16 @@ public class Configuration {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public List<Property> getProperties() {
+	public List<PropertyXmlBean> getProperties() {
 		return properties;
 	}
-	public void setProperties(List<Property> properties) {
+	public void setProperties(List<PropertyXmlBean> properties) {
 		this.properties = properties;
 	}
-	public List<FilePath> getFiles() {
+	public List<FileXmlBean> getFiles() {
 		return files;
 	}
-	public void setFiles(List<FilePath> files) {
+	public void setFiles(List<FileXmlBean> files) {
 		this.files = files;
 	}
 	

@@ -7,16 +7,16 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 @Root
-public class IOC {
+public class IOCXmlBean {
 	
 	@ElementList
-	private List<com.eweb4j.core.configuration.xml.Pojo> pojos = new ArrayList<com.eweb4j.core.configuration.xml.Pojo>();
+	private List<com.eweb4j.core.configuration.xml.PojoXmlBean> pojos = new ArrayList<com.eweb4j.core.configuration.xml.PojoXmlBean>();
 
-	public List<com.eweb4j.core.configuration.xml.Pojo> getPojos() {
+	public List<com.eweb4j.core.configuration.xml.PojoXmlBean> getPojos() {
 		return pojos;
 	}
 
-	public void setPojos(List<com.eweb4j.core.configuration.xml.Pojo> pojos) {
+	public void setPojos(List<com.eweb4j.core.configuration.xml.PojoXmlBean> pojos) {
 		this.pojos = pojos;
 	}
 

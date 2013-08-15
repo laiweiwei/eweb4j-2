@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  | 这是EWeb4J-2.X的 IOC 配置文件
+-->
+<ioc>
+	<pojos>
+		<pojo id="dao" clazz="com.eweb4j.orm.db.DAO">
+			<constructors>
+				<constructor type="com.eweb4j.core.EWeb4J" refer="eweb4j" />
+				<constructor type="java.lang.Object" refer="${args[0]}" />
+			</constructors>
+		</pojo>
+		<pojo id="eweb4j" clazz="com.eweb4j.core.SimpleEWeb4J">
+			<constructors>
+				<constructor type="java.lang.String" value="d:/eweb4j-config-2.xml" />
+			</constructors>
+		</pojo>
+		<pojo id="user" clazz="com.eweb4j.test.User">
+			<setters>
+				<setter name="account" type="" value="laiww" />
+				<setter name="pwd" type="" value="123456" />
+			</setters>
+		</pojo>
+	</pojos>
+</ioc>

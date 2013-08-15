@@ -34,7 +34,7 @@
 		-->
 		<configuration id="listener">
 			<properties>
-				<property name="class" value="com.eweb4j.test.EWeb4JListener" enabled="1" />
+				<property name="class" value="com.eweb4j.test.EWeb4JListener" enabled="0" />
 			</properties>
 		</configuration>
 		<!--
@@ -73,8 +73,7 @@
 		-->
 		<configuration id="ioc" type="xml" holder="com.eweb4j.core.ioc.IOCConfiguration" >
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" enabled="1" />
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc-3.xml" enabled="1" />
+				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" enabled="0"/>
 			</files>
 		</configuration>
 	</configurations>

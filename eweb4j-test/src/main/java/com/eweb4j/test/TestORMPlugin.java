@@ -22,6 +22,10 @@ public class TestORMPlugin {
 		EWeb4J eweb4j = new SimpleEWeb4J(xml);
 		//获取IOC容器
 		IOC ioc = eweb4j.getIOC();
+		
+		Pets pp = ioc.getInstance("pet");
+		System.out.println("pp->"+pp);
+		
 		Pets p = new Pets();
 		p.setNickname("小黄2");
 		p.setNumber("95278");

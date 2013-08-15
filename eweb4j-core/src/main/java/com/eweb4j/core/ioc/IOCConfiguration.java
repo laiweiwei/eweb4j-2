@@ -9,8 +9,8 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 import com.eweb4j.core.configuration.XMLConfiguration;
-import com.eweb4j.core.configuration.xml.IOC;
-import com.eweb4j.core.configuration.xml.Pojo;
+import com.eweb4j.core.configuration.xml.IOCXmlBean;
+import com.eweb4j.core.configuration.xml.PojoXmlBean;
 
 /**
  * IOC Configuration
@@ -18,27 +18,24 @@ import com.eweb4j.core.configuration.xml.Pojo;
  *
  * @param <T>
  */
-public class IOCConfiguration extends XMLConfiguration<String, Pojo>{
+public class IOCConfiguration extends XMLConfiguration<String, PojoXmlBean>{
 
 	//IOC Pojo xml config cache
-	protected Map<String, Pojo> pojoMap = null;
-	protected String xml = null;
-	protected Map<?, ?> context = null;
+	protected Map<String, PojoXmlBean> pojoMap = new HashMap<String, PojoXmlBean>();;
 	
 	public IOCConfiguration(){
 	}
 	
 	public IOCConfiguration(String xml){
-		this.xml = xml;
 		try {
-			this.parseXml();
+			this.parseXml(xml, null);
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
-	public void parseXml() throws Throwable {
+	public void parseXml(String xml, Map<?, ?> context) throws Throwable {
 		//使用spring的simple-xml组件解析XML
 		Serializer serializer = null;
 		if (context == null)
@@ -50,30 +47,21 @@ public class IOCConfiguration extends XMLConfiguration<String, Pojo>{
 		if (!f.exists()) throw new RuntimeException("xml->"+f.getAbsolutePath()+" not found");
     	if (!f.isFile()) throw new RuntimeException("xml->"+f.getAbsolutePath()+" is not a file");
     	
-		IOC ioc = serializer.read(IOC.class, f);
-		List<Pojo> pojos = ioc.getPojos();
+		IOCXmlBean ioc = serializer.read(IOCXmlBean.class, f);
+		List<PojoXmlBean> pojos = ioc.getPojos();
 		if (pojos == null || pojos.isEmpty()) return;
-		this.pojoMap = new HashMap<String, Pojo>(pojos.size());
-		for (Pojo pojo : pojos){
+		for (PojoXmlBean pojo : pojos){
 			pojoMap.put(pojo.getId(), pojo);
 		}
 	}
 	
 	@Override
-	public Pojo get(String key, Object... args) {
+	public PojoXmlBean get(String key, Object... args) {
 		return this.pojoMap.get(key);
 	}
 	
-	public Map<String, Pojo> getMap() {
+	public Map<String, PojoXmlBean> getMap() {
 		return this.pojoMap;
-	}
-
-	public void setXml(String xml){
-		this.xml = xml;
-	}
-	
-	public void setContext(Map<?, ?> context){
-		this.context = context;
 	}
 	
 }

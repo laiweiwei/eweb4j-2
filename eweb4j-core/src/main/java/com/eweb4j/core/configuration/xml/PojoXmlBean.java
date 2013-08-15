@@ -6,7 +6,7 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-public class Pojo {
+public class PojoXmlBean {
 
 	@Attribute
 	private String id;
@@ -24,10 +24,10 @@ public class Pojo {
 	private String clazz;
 	
 	@ElementList(required=false)
-	private List<com.eweb4j.core.configuration.xml.Setter> setters = new ArrayList<com.eweb4j.core.configuration.xml.Setter>();
+	private List<com.eweb4j.core.configuration.xml.SetterXmlBean> setters = new ArrayList<com.eweb4j.core.configuration.xml.SetterXmlBean>();
 	
 	@ElementList(required=false)
-	private List<com.eweb4j.core.configuration.xml.Constructor> constructors = new ArrayList<com.eweb4j.core.configuration.xml.Constructor>();
+	private List<com.eweb4j.core.configuration.xml.ConstructorXmlBean> constructors = new ArrayList<com.eweb4j.core.configuration.xml.ConstructorXmlBean>();
 
 	public String getId() {
 		return id;
@@ -53,20 +53,20 @@ public class Pojo {
 		this.clazz = clazz;
 	}
 
-	public List<com.eweb4j.core.configuration.xml.Setter> getSetters() {
+	public List<com.eweb4j.core.configuration.xml.SetterXmlBean> getSetters() {
 		return setters;
 	}
 
-	public void setSetters(List<com.eweb4j.core.configuration.xml.Setter> setters) {
+	public void setSetters(List<com.eweb4j.core.configuration.xml.SetterXmlBean> setters) {
 		this.setters = setters;
 	}
 
-	public List<com.eweb4j.core.configuration.xml.Constructor> getConstructors() {
+	public List<com.eweb4j.core.configuration.xml.ConstructorXmlBean> getConstructors() {
 		return constructors;
 	}
 
 	public void setConstructors(
-			List<com.eweb4j.core.configuration.xml.Constructor> constructors) {
+			List<com.eweb4j.core.configuration.xml.ConstructorXmlBean> constructors) {
 		this.constructors = constructors;
 	}
 

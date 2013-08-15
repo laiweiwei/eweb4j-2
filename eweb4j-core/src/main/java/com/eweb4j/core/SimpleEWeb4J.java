@@ -5,7 +5,7 @@ import java.util.List;
 import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.configuration.xml.Pojo;
+import com.eweb4j.core.configuration.xml.PojoXmlBean;
 import com.eweb4j.core.ioc.EWeb4JIOC;
 import com.eweb4j.core.ioc.IOC;
 import com.eweb4j.core.plugin.Plugin;
@@ -46,7 +46,7 @@ public class SimpleEWeb4J implements EWeb4J{
 		
 		//设置IOC容器
 		//FIXME 重构，去掉EWeb4J和EWeb4JIOC的循环引用
-		Configuration<String, Pojo> iocConfig = eweb4j.getConfigFactory().getIOCConfig();
+		Configuration<String, PojoXmlBean> iocConfig = eweb4j.getConfigFactory().getIOCConfig();
 		if (iocConfig != null){
 			this.eweb4j.setIOC(new EWeb4JIOC(this.eweb4j));
 		}

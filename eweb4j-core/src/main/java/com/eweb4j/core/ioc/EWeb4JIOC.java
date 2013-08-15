@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.Configuration;
-import com.eweb4j.core.configuration.xml.Constructor;
-import com.eweb4j.core.configuration.xml.Pojo;
-import com.eweb4j.core.configuration.xml.Setter;
+import com.eweb4j.core.configuration.xml.ConstructorXmlBean;
+import com.eweb4j.core.configuration.xml.PojoXmlBean;
+import com.eweb4j.core.configuration.xml.SetterXmlBean;
 
 /**
  * POJO工厂实现类
@@ -31,15 +31,20 @@ public class EWeb4JIOC implements IOC{
 	//pojo class cache
 	private Map<String, Class<?>> clsMap = new HashMap<String, Class<?>>();
 	
-	private Configuration<String, Pojo> configHolder = null;
-	
-	public EWeb4JIOC(Configuration<String, Pojo> iocConfig) {
-		this.configHolder = iocConfig;
-	}
+	private Configuration<String, PojoXmlBean> iocConfig = null;
 	
 	public EWeb4JIOC(EWeb4J eweb4j) {
 		this.eweb4j = eweb4j;
-		this.configHolder = eweb4j.getConfigFactory().getIOCConfig();
+		this.iocConfig = eweb4j.getConfigFactory().getIOCConfig();
+	}
+	
+	public EWeb4JIOC(Configuration<String, PojoXmlBean> iocConfig) {
+		this.iocConfig = iocConfig;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setConfigHolder(Configuration<String, ?> iocConfig) {
+		this.iocConfig = (Configuration<String, PojoXmlBean>) iocConfig;
 	}
 
 	/**
@@ -47,7 +52,7 @@ public class EWeb4JIOC implements IOC{
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getInstance(String key, Object... args) {
-		Pojo pojo = this.configHolder.get(key);
+		PojoXmlBean pojo = this.iocConfig.get(key);
 		if (pojo == null) return null;
 		String scope = pojo.getScope();
 		if ("singleton".equals(scope)){
@@ -72,7 +77,7 @@ public class EWeb4JIOC implements IOC{
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> T _get_pojo_instance(Pojo pojo, Object... args){
+	private <T> T _get_pojo_instance(PojoXmlBean pojo, Object... args){
 		try {
 			String clazz = pojo.getClazz();
 			Class<?> cls = this.clsMap.get(pojo.getId());
@@ -83,13 +88,12 @@ public class EWeb4JIOC implements IOC{
 			
 			T pojoInstance = null;
 			
-			
 			// 使用构造方法进行实例化
-			List<Constructor> constructors = pojo.getConstructors();
+			List<ConstructorXmlBean> constructors = pojo.getConstructors();
 			if (constructors != null && !constructors.isEmpty()) {
 				List<Class<?>> argTypes = new ArrayList<Class<?>>(constructors.size());
 				List<Object> argValues = new ArrayList<Object>(constructors.size());
-				for (Constructor c : constructors){
+				for (ConstructorXmlBean c : constructors){
 					String refer = c.getRefer();
 					String type = c.getType();
 					Class<?> argType = null;
@@ -127,7 +131,7 @@ public class EWeb4JIOC implements IOC{
 						} else {
 							//处理普通的refer
 							//递归
-							Pojo _pojo = this.configHolder.get(refer);
+							PojoXmlBean _pojo = this.iocConfig.get(refer);
 							Object val = this._get_pojo_instance(_pojo, args);
 							argValues.add(val);
 							if (argType == null) argTypes.add(val.getClass());
@@ -140,9 +144,9 @@ public class EWeb4JIOC implements IOC{
 				pojoInstance = (T) cls.newInstance();
 			}
 			
-			List<Setter> setters = pojo.getSetters();
+			List<SetterXmlBean> setters = pojo.getSetters();
 			if (setters == null || setters.isEmpty()) return pojoInstance;
-			for (Setter setter : setters){
+			for (SetterXmlBean setter : setters){
 				String name = setter.getName();
 				String refer = setter.getRefer();
 				String type = setter.getType();
@@ -183,7 +187,7 @@ public class EWeb4JIOC implements IOC{
 					} else {
 						//处理普通的refer
 						//递归
-						Pojo _pojo = this.configHolder.get(refer);
+						PojoXmlBean _pojo = this.iocConfig.get(refer);
 						Object _val = this._get_pojo_instance(_pojo, args);
 						argValue = _val;
 						if (argType == null) argType = _val.getClass();

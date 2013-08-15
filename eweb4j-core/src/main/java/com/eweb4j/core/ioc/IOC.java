@@ -1,11 +1,11 @@
 package com.eweb4j.core.ioc;
 
-import com.eweb4j.core.EWeb4J;
+import com.eweb4j.core.configuration.Configuration;
 
 public interface IOC {
 
-	public <T> T getInstance(String key, Object... args);
+	public void setConfigHolder(Configuration<String, ?> config);
 	
-	public void setEWeb4J(EWeb4J eweb4j);
+	public <T> T getInstance(String key, Object... args);
 	
 }
