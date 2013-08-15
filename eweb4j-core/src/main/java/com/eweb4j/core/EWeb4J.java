@@ -91,23 +91,29 @@ public interface EWeb4J {
 	 * @author vivi
 	 *
 	 */
-	public static interface Constants {
-		String config_xml = "eweb4j-config.xml";
+	public static class Constants {
+		public final static String classpath = Constants.class.getResource("/").getFile();
+		public final static String config_xml = resolve_path("classpath:eweb4j-config.xml");
+		
+		public final static String resolve_path(String path){
+			return path.replace("classpath:", classpath);
+		}
+		
 		public static interface Configurations{
-			String BASE_ID = "base";
-			String PLUGIN_ID = "plugin";
-			String MVC_ID = "mvc";
-			String ORM_ID = "orm";
-			String JPA_ID = "jpa";
-			String JDBC_ID = "jdbc";
-			String LISTENER_ID = "listener";
-			String DATA_SOURCE_ID = "data_source";
-			String IOC_ID = "ioc";
+			public static String BASE_ID = "base";
+			public static String PLUGIN_ID = "plugin";
+			public static String MVC_ID = "mvc";
+			public static String ORM_ID = "orm";
+			public static String JPA_ID = "jpa";
+			public static String JDBC_ID = "jdbc";
+			public static String LISTENER_ID = "listener";
+			public static String DATA_SOURCE_ID = "data_source";
+			public static String IOC_ID = "ioc";
 			
 			public static interface Types{
-				String PROPERTIES = "properties";
-				String XML = "xml";
-				String JSON = "json";
+				public static String PROPERTIES = "properties";
+				public static String XML = "xml";
+				public static String JSON = "json";
 			}
 		}
 	}

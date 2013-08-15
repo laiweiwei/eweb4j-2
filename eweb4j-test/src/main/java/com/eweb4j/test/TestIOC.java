@@ -10,9 +10,10 @@ import com.eweb4j.orm.db.DAO;
 public class TestIOC {
 
 	public static void main(String[] args) throws Exception{
-    	IOC ioc = new EWeb4JIOC(new IOCConfiguration("src/main/resources/eweb4j-ioc-2.xml"));
+		
+    	IOC ioc = new EWeb4JIOC(new IOCConfiguration("classpath:eweb4j-ioc-2.xml"));
     	
-    	DAO dao = ioc.getInstance("dao", Pets.class);
+    	DAO dao = ioc.getInstance("dao", Pets.class); 
     	
     	List<Pets> pets = dao.query("select * from #table");
     	System.out.println(pets);

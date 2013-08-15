@@ -16,7 +16,7 @@ public class TestORMPlugin {
 
 	public static void main(String[] args) throws Exception{
 		
-		final String xml = "src/main/resources/eweb4j-config.xml";
+		final String xml = "classpath:eweb4j-config.xml";
 		
 		//构建框架实例
 		EWeb4J eweb4j = new SimpleEWeb4J(xml);

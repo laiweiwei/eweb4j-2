@@ -1,6 +1,12 @@
 package com.eweb4j.core.configuration;
 
-import static com.eweb4j.core.EWeb4J.Constants.Configurations.*;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.BASE_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.DATA_SOURCE_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.IOC_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.JDBC_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.JPA_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.LISTENER_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.PLUGIN_ID;
 
 import java.io.File;
 import java.util.HashMap;
@@ -109,7 +115,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 					for (FileXmlBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
-						String filePath = filePathBean.getPath();
+						String _path = filePathBean.getPath();
+						if (_path == null || _path.trim().length() == 0) continue;
+						final String filePath = EWeb4J.Constants.resolve_path(_path);
 						File f = new File(filePath);
 						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
 			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
@@ -128,7 +136,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 					for (FileXmlBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
-						String filePath = filePathBean.getPath();
+						String _path = filePathBean.getPath();
+						if (_path == null || _path.trim().length() == 0) continue;
+						final String filePath = EWeb4J.Constants.resolve_path(_path);
 						File f = new File(filePath);
 						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
 			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
@@ -161,9 +171,13 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 * 初始化
 	 * @param xml
 	 */
-	private void init(String xml){
+	private void init(final String _xml){
+		String xml = _xml;
 		if (xml == null || xml.trim().length() == 0) 
 			xml = EWeb4J.Constants.config_xml;
+		else 
+			xml = EWeb4J.Constants.resolve_path(xml);
+		
 		this.configs = new HashMap<String, Configuration<String, ?>>();
 		try {
 			Map<String, String> context = null;

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.XMLConfiguration;
 import com.eweb4j.core.configuration.xml.IOCXmlBean;
 import com.eweb4j.core.configuration.xml.PojoXmlBean;
@@ -35,13 +36,17 @@ public class IOCConfiguration extends XMLConfiguration<String, PojoXmlBean>{
 	}
 	
 	@Override
-	public void parseXml(String xml, Map<?, ?> context) throws Throwable {
+	public void parseXml(final String _xml, Map<?, ?> context) throws Throwable {
+		if (_xml == null) throw new RuntimeException("xml can not be null");
+		
 		//使用spring的simple-xml组件解析XML
 		Serializer serializer = null;
 		if (context == null)
 			serializer = new Persister();
 		else
 			serializer = new Persister(context);
+		
+		String xml = EWeb4J.Constants.resolve_path(_xml);
 		
 		File f = new File(xml);
 		if (!f.exists()) throw new RuntimeException("xml->"+f.getAbsolutePath()+" not found");

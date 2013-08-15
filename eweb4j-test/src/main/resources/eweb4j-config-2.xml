@@ -43,7 +43,7 @@
 		-->
 		<configuration id="jdbc" type="properties">
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/db.properties" />
+				<file path="classpath:db.properties" />
 			</files>
 		</configuration>
 		<!--
@@ -73,7 +73,7 @@
 		-->
 		<configuration id="ioc" type="xml" holder="com.eweb4j.core.ioc.IOCConfiguration" >
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" enabled="0"/>
+				<file path="classpath:eweb4j-ioc.xml" enabled="0"/>
 			</files>
 		</configuration>
 	</configurations>

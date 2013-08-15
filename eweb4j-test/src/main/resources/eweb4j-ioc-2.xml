@@ -12,7 +12,7 @@
 		</pojo>
 		<pojo id="eweb4j" clazz="com.eweb4j.core.SimpleEWeb4J">
 			<constructors>
-				<constructor type="java.lang.String" value="d:/eweb4j-config-2.xml" />
+				<constructor type="java.lang.String" value="classpath:eweb4j-config-2.xml" />
 			</constructors>
 		</pojo>
 		<pojo id="user" clazz="com.eweb4j.test.User">

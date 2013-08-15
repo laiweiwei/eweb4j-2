@@ -43,7 +43,7 @@
 		-->
 		<configuration id="jdbc" type="properties">
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/db.properties" />
+				<file path="classpath:db.properties" />
 			</files>
 		</configuration>
 		<!--
@@ -53,6 +53,7 @@
 			<properties>
 				<property name="absollute_path_of_view" value="${absolute_path_of_root}${relative_path_of_view}" />
 				<property name="controller" value="controller.RolesController" />
+				<property name="package" value="com.eweb4j.test.web" />
 			</properties>
 		</configuration>
 		
@@ -61,11 +62,9 @@
 		-->
 		<configuration id="orm">
 			<properties>
-				<!--
-				  | 多个相同名字的property的值会被当成数组使用","连接起来
-				-->
 				<property name="entity" value="com.eweb4j.test.User"  />
 				<property name="entity" value="com.eweb4j.test.Pets"  />
+				<property name="package" value="com.eweb4j.test.model" />
 			</properties>
 		</configuration>
 		<!--
@@ -73,8 +72,8 @@
 		-->
 		<configuration id="ioc" type="xml" holder="com.eweb4j.core.ioc.IOCConfiguration" >
 			<files>
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc.xml" enabled="1" />
-				<file path="${absolute_path_of_root}/src/main/resources/eweb4j-ioc-3.xml" enabled="1" />
+				<file path="classpath:eweb4j-ioc.xml" enabled="1" />
+				<file path="classpath:eweb4j-ioc-3.xml" enabled="1" />
 			</files>
 		</configuration>
 	</configurations>
