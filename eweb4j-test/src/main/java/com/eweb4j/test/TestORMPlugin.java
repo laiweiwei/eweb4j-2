@@ -16,13 +16,13 @@ public class TestORMPlugin {
 
 	public static void main(String[] args) throws Exception{
 		
-		final String xml = "classpath:eweb4j-config.xml";
-		
 		//构建框架实例
-		EWeb4J eweb4j = new SimpleEWeb4J(xml);
+		EWeb4J eweb4j = new SimpleEWeb4J("classpath:eweb4j-config.xml");
+		
 		//获取IOC容器
 		IOC ioc = eweb4j.getIOC();
 		
+		//从IOC容器里获取DAO实例
 		Pets pp = ioc.getInstance("pet");
 		System.out.println("pp->"+pp);
 		
@@ -30,6 +30,7 @@ public class TestORMPlugin {
 		p.setNickname("小黄2");
 		p.setNumber("95278");
 		p.setAge(8);
+		
 		//从IOC容器里获取DAO实例
 		DAO dao = ioc.getInstance("dao", p);
 		
