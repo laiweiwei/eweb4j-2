@@ -55,14 +55,7 @@ public interface EWeb4J {
 	 * 添加插件
 	 * @param plugin
 	 */
-	public void addPlugin(Plugin plugin) ;
-	
-	/**
-	 * 获取所有插件
-	 * @return
-	 */
-	public List<Plugin> getPlugins() ;
-	
+	public void addPlugin(String id, Plugin plugin) ;
 	
 	/**
 	 * 启动框架
@@ -104,7 +97,7 @@ public interface EWeb4J {
 			public static String PLUGIN_ID = "plugin";
 			public static String MVC_ID = "mvc";
 			public static String ORM_ID = "orm";
-			public static String JPA_ID = "jpa";
+			public static String ENTITY_RELATION_MAPPING_ID = "entity_relation_mapping";
 			public static String JDBC_ID = "jdbc";
 			public static String LISTENER_ID = "listener";
 			public static String DATA_SOURCE_ID = "data_source";

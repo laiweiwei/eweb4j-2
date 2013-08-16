@@ -1,11 +1,13 @@
 package com.eweb4j.core;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.configuration.ConfigurationFactoryImpl;
-import com.eweb4j.core.configuration.xml.PojoXmlBean;
+import com.eweb4j.core.configuration.xml.PojoBean;
 import com.eweb4j.core.ioc.EWeb4JIOC;
 import com.eweb4j.core.ioc.IOC;
 import com.eweb4j.core.plugin.Plugin;
@@ -32,21 +34,24 @@ public class SimpleEWeb4J implements EWeb4J{
 		this.eweb4j = new GenericEWeb4J(configFactory, pluginManager);
 		
 		//添加插件
-		List<String> pluginClasses = configFactory.getPlugins();
-		for (String pluginClass : pluginClasses) {
+		Configuration<String, String> pluginConfig = configFactory.getPluginConfig();
+		for (Iterator<Entry<String, String>> it = pluginConfig.entrySet().iterator(); it.hasNext(); ) {
+			Entry<String, String> e = it.next();
+			String pluginID = e.getKey();
+			String pluginClass = e.getValue(); 
 			try {
 				@SuppressWarnings("unchecked")
 				Class<Plugin> cls = (Class<Plugin>) Thread.currentThread().getContextClassLoader().loadClass(pluginClass);
 				Plugin _plugin = cls.newInstance();
-				this.eweb4j.addPlugin(_plugin);
-			} catch (Throwable e) {
-				throw new RuntimeException(e);
+				this.eweb4j.addPlugin(pluginID, _plugin);
+			} catch (Throwable exp) {
+				throw new RuntimeException(exp);
 			}
 		}
 		
 		//设置IOC容器
 		//FIXME 重构，去掉EWeb4J和EWeb4JIOC的循环引用
-		Configuration<String, PojoXmlBean> iocConfig = eweb4j.getConfigFactory().getIOCConfig();
+		Configuration<String, PojoBean> iocConfig = eweb4j.getConfigFactory().getIocConfig();
 		if (iocConfig != null){
 			this.eweb4j.setIOC(new EWeb4JIOC(this.eweb4j));
 		}
@@ -75,10 +80,6 @@ public class SimpleEWeb4J implements EWeb4J{
 	public void addPlugin(Plugin plugin) {
 	}
 
-	public List<Plugin> getPlugins() {
-		return this.eweb4j.getPlugins();
-	}
-
 	@Deprecated
 	public EWeb4J startup() {
 		return this;
@@ -95,6 +96,10 @@ public class SimpleEWeb4J implements EWeb4J{
 
 	public IOC getIOC() {
 		return this.eweb4j.getIOC();
+	}
+
+	public void addPlugin(String id, Plugin plugin) {
+		this.eweb4j.addPlugin(id, plugin);
 	}
 
 }

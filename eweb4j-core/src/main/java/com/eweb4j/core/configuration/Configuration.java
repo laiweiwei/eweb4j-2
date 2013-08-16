@@ -8,23 +8,11 @@ import java.util.Map;
  * @author vivi
  *
  */
-public interface Configuration<K, V> {
+public interface Configuration<K, V> extends Map<K, V>{
 
 	public void init();
 	
 	public Map<K, V> getMap();
-	
-	public void put(K key, V value);
-	
-	public boolean containsKey(K key);
-	
-	public V remove(K key);
-	
-	public void clear();
-	
-	public boolean hasNext();
-	
-	public V next();
 	
 	public V get(K key, Object... args);
 	

@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.Configuration;
-import com.eweb4j.core.configuration.xml.ConstructorXmlBean;
-import com.eweb4j.core.configuration.xml.PojoXmlBean;
-import com.eweb4j.core.configuration.xml.SetterXmlBean;
+import com.eweb4j.core.configuration.xml.ConstructorBean;
+import com.eweb4j.core.configuration.xml.PojoBean;
+import com.eweb4j.core.configuration.xml.SetterBean;
 
 /**
  * POJO工厂实现类
@@ -31,20 +31,20 @@ public class EWeb4JIOC implements IOC{
 	//pojo class cache
 	private Map<String, Class<?>> clsMap = new HashMap<String, Class<?>>();
 	
-	private Configuration<String, PojoXmlBean> iocConfig = null;
+	private Configuration<String, PojoBean> iocConfig = null;
 	
 	public EWeb4JIOC(EWeb4J eweb4j) {
 		this.eweb4j = eweb4j;
-		this.iocConfig = eweb4j.getConfigFactory().getIOCConfig();
+		this.iocConfig = eweb4j.getConfigFactory().getIocConfig();
 	}
 	
-	public EWeb4JIOC(Configuration<String, PojoXmlBean> iocConfig) {
+	public EWeb4JIOC(Configuration<String, PojoBean> iocConfig) {
 		this.iocConfig = iocConfig;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void setConfigHolder(Configuration<String, ?> iocConfig) {
-		this.iocConfig = (Configuration<String, PojoXmlBean>) iocConfig;
+		this.iocConfig = (Configuration<String, PojoBean>) iocConfig;
 	}
 
 	/**
@@ -52,22 +52,19 @@ public class EWeb4JIOC implements IOC{
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getInstance(String key, Object... args) {
-		PojoXmlBean pojo = this.iocConfig.get(key);
+		PojoBean pojo = this.iocConfig.get(key);
 		if (pojo == null) return null;
 		String scope = pojo.getScope();
+		Object instance = null;
 		if ("singleton".equals(scope)){
-			synchronized (this.pojoInstances) {
-				Object instance = this.pojoInstances.get(key);
-				if (instance == null) {
-					instance = this._get_pojo_instance(pojo, args);
-					this.pojoInstances.put(pojo.getId(), instance);
-				}
-				
-				return (T) instance;
+			instance = this.pojoInstances.get(key);
+			if (instance == null) {
+				instance = this._get_pojo_instance(pojo, args);
 			}
+			return (T)instance;
+		}else {
+			return this._get_pojo_instance(pojo, args);
 		}
-		
-		return this._get_pojo_instance(pojo, args);
 	}
 	
 	/**
@@ -77,7 +74,7 @@ public class EWeb4JIOC implements IOC{
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> T _get_pojo_instance(PojoXmlBean pojo, Object... args){
+	private <T> T _get_pojo_instance(PojoBean pojo, Object... args){
 		try {
 			String clazz = pojo.getClazz();
 			Class<?> cls = this.clsMap.get(pojo.getId());
@@ -89,11 +86,11 @@ public class EWeb4JIOC implements IOC{
 			T pojoInstance = null;
 			
 			// 使用构造方法进行实例化
-			List<ConstructorXmlBean> constructors = pojo.getConstructors();
+			List<ConstructorBean> constructors = pojo.getConstructors();
 			if (constructors != null && !constructors.isEmpty()) {
 				List<Class<?>> argTypes = new ArrayList<Class<?>>(constructors.size());
 				List<Object> argValues = new ArrayList<Object>(constructors.size());
-				for (ConstructorXmlBean c : constructors){
+				for (ConstructorBean c : constructors){
 					String refer = c.getRefer();
 					String type = c.getType();
 					Class<?> argType = null;
@@ -131,7 +128,7 @@ public class EWeb4JIOC implements IOC{
 						} else {
 							//处理普通的refer
 							//递归
-							PojoXmlBean _pojo = this.iocConfig.get(refer);
+							PojoBean _pojo = this.iocConfig.get(refer);
 							Object val = this._get_pojo_instance(_pojo, args);
 							argValues.add(val);
 							if (argType == null) argTypes.add(val.getClass());
@@ -144,62 +141,63 @@ public class EWeb4JIOC implements IOC{
 				pojoInstance = (T) cls.newInstance();
 			}
 			
-			List<SetterXmlBean> setters = pojo.getSetters();
-			if (setters == null || setters.isEmpty()) return pojoInstance;
-			for (SetterXmlBean setter : setters){
-				String name = setter.getName();
-				String refer = setter.getRefer();
-				String type = setter.getType();
-				Class<?> argType = null;
-				if (type != null && type.trim().length() > 0) {
-					Class<?> typeCls = Thread.currentThread().getContextClassLoader().loadClass(type);
-					argType = typeCls;
-				}
-				Object argValue = null;
-				if (refer == null || refer.trim().length() == 0){
-					//处理基本类型
-					String val = setter.getValue();
-					argValue = val;
-					if (argType == null) argType = String.class;
-				}else {
-					if (refer.matches(ctxRegex)) {
-						//处理${}上下文变量
-						Pattern p = Pattern.compile(ctxRegex, Pattern.DOTALL);
-						Matcher m = p.matcher(refer);
-						m.find();
-						String ctxName = m.group();
-						if ("eweb4j".equals(ctxName)){
-							argValue = this.eweb4j;
-							if (argType == null) argType = EWeb4J.class;
-						}else if ("args".equals(ctxName)) {
-							argValue = args;
-							if (argType == null) argType = Object[].class;
-						}else {
-							Pattern p2 = Pattern.compile(argRegex, Pattern.DOTALL);
-							Matcher m2 = p2.matcher(refer);
-							if (m2.find()){
-								String index = m2.group();
-								int i = Integer.parseInt(index);
-								argValue = args[i];
-								if (argType == null) argType = argValue.getClass();
-							}
-						} 
-					} else {
-						//处理普通的refer
-						//递归
-						PojoXmlBean _pojo = this.iocConfig.get(refer);
-						Object _val = this._get_pojo_instance(_pojo, args);
-						argValue = _val;
-						if (argType == null) argType = _val.getClass();
+			List<SetterBean> setters = pojo.getSetters();
+			if (setters != null) {
+				for (SetterBean setter : setters){
+					String name = setter.getName();
+					String refer = setter.getRefer();
+					String type = setter.getType();
+					Class<?> argType = null;
+					if (type != null && type.trim().length() > 0) {
+						Class<?> typeCls = Thread.currentThread().getContextClassLoader().loadClass(type);
+						argType = typeCls;
 					}
+					Object argValue = null;
+					if (refer == null || refer.trim().length() == 0){
+						//处理基本类型
+						String val = setter.getValue();
+						argValue = val;
+						if (argType == null) argType = String.class;
+					}else {
+						if (refer.matches(ctxRegex)) {
+							//处理${}上下文变量
+							Pattern p = Pattern.compile(ctxRegex, Pattern.DOTALL);
+							Matcher m = p.matcher(refer);
+							m.find();
+							String ctxName = m.group();
+							if ("eweb4j".equals(ctxName)){
+								argValue = this.eweb4j;
+								if (argType == null) argType = EWeb4J.class;
+							}else if ("args".equals(ctxName)) {
+								argValue = args;
+								if (argType == null) argType = Object[].class;
+							}else {
+								Pattern p2 = Pattern.compile(argRegex, Pattern.DOTALL);
+								Matcher m2 = p2.matcher(refer);
+								if (m2.find()){
+									String index = m2.group();
+									int i = Integer.parseInt(index);
+									argValue = args[i];
+									if (argType == null) argType = argValue.getClass();
+								}
+							} 
+						} else {
+							//处理普通的refer
+							//递归
+							PojoBean _pojo = this.iocConfig.get(refer);
+							Object _val = this._get_pojo_instance(_pojo, args);
+							argValue = _val;
+							if (argType == null) argType = _val.getClass();
+						}
+					}
+					
+					String firstUpperCase = name.toUpperCase().substring(0, 1);
+					String methodName = "set" + firstUpperCase + name.substring(1);
+					Method method = cls.getMethod(methodName, argType);
+					method.invoke(pojoInstance, argValue);
 				}
-				
-				String firstUpperCase = name.toUpperCase().substring(0, 1);
-				String methodName = "set" + firstUpperCase + name.substring(1);
-				Method method = cls.getMethod(methodName, argType);
-				method.invoke(pojoInstance, argValue);
 			}
-			
+			this.pojoInstances.put(pojo.getId(), pojoInstance);
 			return pojoInstance;
 		} catch (Throwable e){
 			throw new RuntimeException(e);

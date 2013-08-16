@@ -15,11 +15,6 @@ public class VelocityPlugin extends AbstractTemplateEnginePlugin{
 	private VelocityEngine ve = new VelocityEngine();
 	
 	@Override
-	public String ID() {
-		return "Velocity-Plugin";
-	}
-
-	@Override
 	public void init(String viewAbsolutePath) {
 		// 初始化Velocity模板引擎
 		File viewsDir = new File(viewAbsolutePath);

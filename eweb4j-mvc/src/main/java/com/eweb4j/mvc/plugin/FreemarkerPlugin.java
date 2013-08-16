@@ -14,11 +14,6 @@ public class FreemarkerPlugin extends AbstractTemplateEnginePlugin{
 	private final Configuration cfg = new Configuration();
 	
 	@Override
-	public String ID() {
-		return "Freemarker-Plugin";
-	}
-
-	@Override
 	public void init(String viewAbsolutePath) {
 		try {
 			// 指定模板从何处加载的数据源，这里设置成一个文件目录。

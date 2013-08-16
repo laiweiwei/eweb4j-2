@@ -7,11 +7,11 @@
   <packaging>pom</packaging>
   <modules>
   	<module>eweb4j-core</module>
-  	<module>eweb4j-orm</module>
-  	<module>eweb4j-util</module>
   	<module>eweb4j-test</module>
-  	<module>eweb4j-mvc</module>
+  	<module>eweb4j-util</module>
     <module>eweb4j-webapp</module>
+    <module>eweb4j-mvc</module>
+    <module>eweb4j-plugins-jpa</module>
     <module>eweb4j-plugins-druid</module>
   </modules>
 </project>

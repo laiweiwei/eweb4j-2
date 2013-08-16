@@ -4,13 +4,13 @@
 -->
 <ioc>
 	<pojos>
-		<pojo id="dao" clazz="com.eweb4j.orm.db.DAO">
+		<pojo id="dao" clazz="com.eweb4j.core.orm.DAO">
 			<constructors>
 				<constructor type="com.eweb4j.core.EWeb4J" refer="eweb4j" />
 				<constructor type="java.lang.Object" refer="${args[0]}" />
 			</constructors>
 		</pojo>
-		<pojo id="eweb4j" clazz="com.eweb4j.core.SimpleEWeb4J">
+		<pojo id="eweb4j" clazz="com.eweb4j.core.SimpleEWeb4J" scope="singleton">
 			<constructors>
 				<constructor type="java.lang.String" value="classpath:eweb4j-config-2.xml" />
 			</constructors>

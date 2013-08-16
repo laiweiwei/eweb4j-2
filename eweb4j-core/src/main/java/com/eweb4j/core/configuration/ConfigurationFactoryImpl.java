@@ -4,7 +4,7 @@ import static com.eweb4j.core.EWeb4J.Constants.Configurations.BASE_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.DATA_SOURCE_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.IOC_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.JDBC_ID;
-import static com.eweb4j.core.EWeb4J.Constants.Configurations.JPA_ID;
+import static com.eweb4j.core.EWeb4J.Constants.Configurations.ENTITY_RELATION_MAPPING_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.LISTENER_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.PLUGIN_ID;
 
@@ -20,10 +20,11 @@ import org.simpleframework.xml.core.Persister;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.EWeb4J.Constants.Configurations.Types;
-import com.eweb4j.core.configuration.xml.ConfigurationXmlBean;
-import com.eweb4j.core.configuration.xml.EWeb4JXmlBean;
-import com.eweb4j.core.configuration.xml.FileXmlBean;
-import com.eweb4j.core.configuration.xml.PropertyXmlBean;
+import com.eweb4j.core.configuration.xml.ConfigurationBean;
+import com.eweb4j.core.configuration.xml.EWeb4JBean;
+import com.eweb4j.core.configuration.xml.FileBean;
+import com.eweb4j.core.configuration.xml.PropertyBean;
+import com.eweb4j.core.orm.EntityRelationMapping;
 
 public class ConfigurationFactoryImpl implements ConfigurationFactory{
 
@@ -40,19 +41,19 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		
 		//使用spring的simple-xml组件解析XML为POJO
 		Serializer serializer = new Persister();
-		EWeb4JXmlBean eweb4j = serializer.read(EWeb4JXmlBean.class, xml);
+		EWeb4JBean eweb4j = serializer.read(EWeb4JBean.class, xml);
 		if (eweb4j == null) return null;
 		
-		List<ConfigurationXmlBean> configs = eweb4j.getConfigurations();
-		for (ConfigurationXmlBean config : configs) {
+		List<ConfigurationBean> configs = eweb4j.getConfigurations();
+		for (ConfigurationBean config : configs) {
 			Configuration<String, String> configuration = null;
 			String id = config.getId();
 			//只要base的配置
 			if (!BASE_ID.equals(id)) continue;
-			List<PropertyXmlBean> propertiesBean = config.getProperties();
+			List<PropertyBean> propertiesBean = config.getProperties();
 			if (propertiesBean == null || propertiesBean.isEmpty()) continue;
 			configuration = new MapConfiguration<String, String>(propertiesBean.size());
-			for (PropertyXmlBean p : propertiesBean) {
+			for (PropertyBean p : propertiesBean) {
 				//若不开启，跳过
 				if (0 == p.getEnabled()) continue;
 				
@@ -65,9 +66,9 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return null;
 	}
 	
-	private void storeProperties(Configuration<String, Object> configuration, List<PropertyXmlBean> propertiesBean){
+	private void storeProperties(Configuration<String, Object> configuration, List<PropertyBean> propertiesBean){
 		Map<String, StringBuilder> arrayMap = new HashMap<String, StringBuilder>();
-		for (PropertyXmlBean p : propertiesBean) {
+		for (PropertyBean p : propertiesBean) {
 			//若不开启，跳过
 			if (0 == p.getEnabled()) continue;
 			
@@ -98,21 +99,21 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	private void storeConfigsFromXml(File xml, Map<?,?> context) throws Throwable{
 		//使用spring的simple-xml组件解析XML为POJO
 		Serializer serializer = new Persister(context);
-		EWeb4JXmlBean eweb4j = serializer.read(EWeb4JXmlBean.class, xml);
+		EWeb4JBean eweb4j = serializer.read(EWeb4JBean.class, xml);
 		if (eweb4j == null) return ;
 	
-		List<ConfigurationXmlBean> configs = eweb4j.getConfigurations();
-		for (ConfigurationXmlBean config : configs) {
+		List<ConfigurationBean> configs = eweb4j.getConfigurations();
+		for (ConfigurationBean config : configs) {
 			Configuration<String, Object> configuration = null;
 			String id = config.getId();
 			String type = config.getType();
-			List<PropertyXmlBean> propertyBeans = config.getProperties();
+			List<PropertyBean> propertyBeans = config.getProperties();
 			//根据不同的类型处理不同配置信息的获取来源
 			if (Types.PROPERTIES.equals(type)) {
-				List<FileXmlBean> filePaths = config.getFiles();
+				List<FileBean> filePaths = config.getFiles();
 				configuration = new MapConfiguration<String, Object>();
 				if (filePaths != null && !filePaths.isEmpty()) {
-					for (FileXmlBean filePathBean : filePaths) {
+					for (FileBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
 						String _path = filePathBean.getPath();
@@ -122,18 +123,18 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 						if (!f.exists()) throw new Exception("file->"+f.getAbsolutePath()+" not found");
 			        	if (!f.isFile()) throw new Exception("file->"+f.getAbsolutePath()+" is not a file");
 						//读取properties文件
-			        	configuration.getMap().putAll(new PropertiesConfiguration(filePath).getMap());
+			        	configuration.putAll(new PropertiesConfiguration(filePath).getMap());
 					}
 				}
 			} else if (Types.XML.equals(type)){
-				List<FileXmlBean> filePaths = config.getFiles();
+				List<FileBean> filePaths = config.getFiles();
 				if (filePaths != null && !filePaths.isEmpty()) {
 					String configClass = config.getHolder();
 					@SuppressWarnings("unchecked")
 					Class<XMLConfiguration<String, Object>> cls = (Class<XMLConfiguration<String, Object>>) Thread.currentThread().getContextClassLoader().loadClass(configClass);
 					configuration = cls.newInstance();
 					XMLConfiguration<String, Object> c = (XMLConfiguration<String, Object>)configuration;
-					for (FileXmlBean filePathBean : filePaths) {
+					for (FileBean filePathBean : filePaths) {
 						//若不开启，跳过
 						if (0 == filePathBean.getEnabled()) continue;
 						String _path = filePathBean.getPath();
@@ -188,7 +189,7 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
         	Configuration<String, String> baseConfig = this.readBaseConfigFromXml(f);
         	if (baseConfig != null){
         		//转成上下文
-        		context = baseConfig.getMap();
+        		context = baseConfig;
         	}else{
         		context = new HashMap<String, String>(1);
         	}
@@ -211,8 +212,66 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		init(xml);
 	}
 	
-	public Configuration<String, ?> addConfiguration(String id, Configuration<String, ?> configuration) {
-		return this.configs.put(id, configuration);
+	/**
+	 * 获取数组字符串内容
+	 * @param id
+	 * @param key
+	 * @return
+	 */
+	private List<String> getListString(String id, String key){
+		return getListString(id, key, ",");
+	}
+	
+	/**
+	 * 获取数组字符串内容
+	 * @param id
+	 * @param key
+	 * @param split
+	 * @return
+	 */
+	private List<String> getListString(String id, String key, String split){
+		Configuration<String, ?> config = this.configs.get(id);
+		if (config == null) return null;
+		
+		return config.getListString(key, split);
+	}
+	
+	/**
+	 * 获取字符串内容
+	 * @param id
+	 * @param key
+	 * @return
+	 */
+	private String getString(String id, String key){
+		return getString(id, key, null);
+	}
+	
+	/**
+	 * 获取字符串内容
+	 * @param id
+	 * @param key
+	 * @param defaultVal
+	 * @return
+	 */
+	private String getString(String id, String key, String defaultVal){
+		Configuration<String, ?> config = this.configs.get(id);
+		if (config == null) return null;
+		return config.getString(key, defaultVal);
+	}
+	
+	/**
+	 * 设置配置容器
+	 */
+	public void setConfiguration(String id, Configuration<String, ?> configuration) {
+		this.configs.put(id, configuration);
+	}
+
+	/**
+	 * 添加配置容器
+	 */
+	public void addConfiguration(String id, Configuration<String, ?> configuration) {
+		if (!this.configs.containsKey(id))
+			this.configs.put(id, configuration);
 	}
 
 	
@@ -222,11 +281,18 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 */
 	@SuppressWarnings("unchecked")
 	public <V> Configuration<String, V> getBaseConfig(){
-		return (Configuration<String, V>) configs.get(BASE_ID);
+		return (Configuration<String, V>) this.configs.get(BASE_ID);
 	}
 	
 	/**
-	 * 获取jdbc配置信息
+	 * 设置基本配置
+	 */
+	public <V> void setBaseConfig(Configuration<String, V> baseConfig) {
+		this.configs.put(BASE_ID, baseConfig);
+	}
+
+	/**
+	 * 获取JDBC配置容器
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -234,8 +300,44 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return (Configuration<String, V>) configs.get(JDBC_ID);
 	}
 	
+	/**
+	 * 设置JDBC配置容器
+	 */
+	public <V> void setJdbcConfig(Configuration<String, V> jdbcConfig) {
+		this.configs.put(JDBC_ID, jdbcConfig);
+	}
+	
+	/**
+	 * 获取插件配置信息容器
+	 * @param <V>
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public <V> Configuration<String, V> getIOCConfig(){
+	public <V> Configuration<String, V> getPluginConfig(){
+		return (Configuration<String, V>) configs.get(PLUGIN_ID);
+	}
+	
+	/**
+	 * 设置插件配置信息容器
+	 * @param <V>
+	 * @param pluginConfig
+	 */
+	public <V> void setPluginConfig(Configuration<String, V> pluginConfig){
+		this.configs.put(PLUGIN_ID, pluginConfig);
+	}
+	
+	/**
+	 * 设置IOC配置容器
+	 */
+	public <V> void setIocConfig(Configuration<String, V> iocConfig) {
+		this.configs.put(IOC_ID, iocConfig);
+	}
+	
+	/**
+	 * 获取IOC信息容器
+	 */
+	@SuppressWarnings("unchecked")
+	public <V> Configuration<String, V> getIocConfig() {
 		return (Configuration<String, V>)configs.get(IOC_ID);
 	}
 	
@@ -247,26 +349,6 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	@SuppressWarnings("unchecked")
 	public <V> Configuration<String, V> getConfiguration(String id){
 		return (Configuration<String, V>) configs.get(id);
-	}
-	
-	private List<String> getListString(String id, String key){
-		return getListString(id, key, ",");
-	}
-	private List<String> getListString(String id, String key, String split){
-		Configuration<String, ?> config = this.configs.get(id);
-		if (config == null) return null;
-		
-		return config.getListString(key, split);
-	}
-	
-	private String getString(String id, String key){
-		return getString(id, key, null);
-	}
-	
-	private String getString(String id, String key, String defaultVal){
-		Configuration<String, ?> config = this.configs.get(id);
-		if (config == null) return null;
-		return config.getString(key, defaultVal);
 	}
 	
 	/**
@@ -292,9 +374,43 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 	 * 获取指定名字的数据源实例
 	 */
 	public DataSource getDataSource(String dsName){
-		Configuration<String, ?> config = this.configs.get(DATA_SOURCE_ID);
+		Configuration<String, DataSource> config = getDataSourceConfig();
 		if (config == null) return null;
 		return (DataSource) config.get(dsName);
+	}
+	
+	/**
+	 * 获取数据源容器
+	 */
+	@SuppressWarnings("unchecked")
+	public Configuration<String, DataSource> getDataSourceConfig() {
+		return (Configuration<String, DataSource>) this.configs.get(DATA_SOURCE_ID);
+	}
+
+	/**
+	 * 设置数据源容器
+	 */
+	public void setDataSourceConfig(Configuration<String, DataSource> dataSourceConfig) {
+		if (dataSourceConfig != null)
+			this.configs.put(DATA_SOURCE_ID, dataSourceConfig);
+	}
+
+	/**
+	 * 设置数据源
+	 */
+	public void setDataSource(String dsName, DataSource ds) {
+		Configuration<String, DataSource> config = getDataSourceConfig();
+		if (config != null)
+			config.put(dsName, ds);
+	}
+
+	/**
+	 * 添加数据源
+	 */
+	public void addDataSource(String dsName, DataSource ds) {
+		Configuration<String, DataSource> config = getDataSourceConfig();
+		if (config != null && !config.containsKey(dsName))
+			config.put(dsName, ds);
 	}
 	
 	/**
@@ -328,25 +444,45 @@ public class ConfigurationFactoryImpl implements ConfigurationFactory{
 		return this.getListString(LISTENER_ID, "class");
 	}
 	
-	public List<String> getPlugins() {
-		return this.getListString(PLUGIN_ID, "class");
+	/**
+	 * 获取实体类映射信息容器
+	 * @return
+	 */
+	public Configuration<String, EntityRelationMapping> getEntityRelationMappingConfig(){
+		return getConfiguration(ENTITY_RELATION_MAPPING_ID);
 	}
 	
 	/**
-	 * 获取JPA注解配置信息
+	 * 设置实体类映射信息，会覆盖已有的
 	 */
-	public <T> T getJPA(Class<?> entityClass) {
-		return getJPA(entityClass.getName());
+	public void setEntityRelationMapping(String entityClass, EntityRelationMapping erm){
+		Configuration<String, EntityRelationMapping> config = getEntityRelationMappingConfig();
+		config.put(entityClass, erm);
 	}
 	
 	/**
-	 * 获取JPA注解配置信息
+	 * 添加实体类映射信息，不会覆盖已有的
 	 */
-	@SuppressWarnings("unchecked")
-	public <T> T getJPA(String entityClass) {
-		Configuration<String, ?> config = getConfiguration(JPA_ID);
+	public void addEntityRelationMapping(String entityClass, EntityRelationMapping erm){
+		Configuration<String, EntityRelationMapping> config = getEntityRelationMappingConfig();
+		if (config != null && !config.containsKey(entityClass))
+			config.put(entityClass, erm);
+	}
+	
+	/**
+	 * 获取实体类关系映射信息
+	 */
+	public EntityRelationMapping getEntityRelationMapping(Class<?> entityClass) {
+		return getEntityRelationMapping(entityClass.getName());
+	}
+	
+	/**
+	 * 获取实体类关系映射信息
+	 */
+	public EntityRelationMapping getEntityRelationMapping(String entityClass) {
+		Configuration<String, EntityRelationMapping> config = getConfiguration(ENTITY_RELATION_MAPPING_ID);
 		if (config == null) return null;
-		return (T) config.get(entityClass);
+		return config.get(entityClass);
 	}
-
+	
 }

@@ -21,16 +21,6 @@ public abstract class AbstractTemplateEnginePlugin extends Plugin{
 	public abstract TemplateEngine templateEngine();
 	
 	@Override
-	public String name() {
-		return ID();
-	}
-	
-	@Override
-	public String provider() {
-		return "l.weiwei@163.com";
-	}
-	
-	@Override
 	public void init(EWeb4J eweb4j) {
 		ConfigurationFactory configFactory = eweb4j.getConfigFactory();
 		String absolutePathOfView = configFactory.getAbsolutePathOfView();

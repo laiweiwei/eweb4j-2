@@ -90,10 +90,6 @@ public class PropertiesConfiguration extends AbstractConfiguration<String, Strin
 		return this.values;
 	}
 	
-	public void put(String key, String value) {
-		this.values.put(key, value);
-	}
-	
 	public String get(String key, Object... args) {
 		return getMap().get(key);
 	}

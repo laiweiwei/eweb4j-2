@@ -5,13 +5,13 @@
 -->
 <ioc>
 	<pojos>
-		<pojo id="sql" clazz="com.eweb4j.orm.db.SQL">
+		<pojo id="sql" clazz="com.eweb4j.core.orm.SQL">
 			<constructors>
 				<constructor type="com.eweb4j.core.EWeb4J" refer="${eweb4j}" />
 				<constructor type="java.lang.Object" refer="${args[0]}" />
 			</constructors>
 		</pojo>
-		<pojo id="dao" clazz="com.eweb4j.orm.db.DAO">
+		<pojo id="dao" clazz="com.eweb4j.core.orm.DAO">
 			<constructors>
 				<constructor type="com.eweb4j.core.EWeb4J" refer="${eweb4j}" />
 				<constructor type="java.lang.Object" refer="${args[0]}" />

@@ -1,7 +1,11 @@
 package com.eweb4j.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.eweb4j.core.configuration.ConfigurationFactory;
 import com.eweb4j.core.ioc.IOC;
@@ -21,11 +25,12 @@ public class GenericEWeb4J implements EWeb4J{
 	private IOC ioc = null;
 	
 	private List<Listener> listeners = new ArrayList<Listener>();
-	private List<Plugin> plugins = new ArrayList<Plugin>();
+	private Map<String, Plugin> plugins = new HashMap<String, Plugin>();
 	
 	public GenericEWeb4J(ConfigurationFactory configFactory, PluginManager pluginManager) {
 		this.configFactory = configFactory;
 		this.pluginManager = pluginManager;
+		this.pluginManager.setEWeb4J(this);
 	}
 	
 	public PluginManager getPluginManager() {
@@ -44,12 +49,8 @@ public class GenericEWeb4J implements EWeb4J{
 		return listeners;
 	}
 	
-	public void addPlugin(Plugin plugin) {
-		this.plugins.add(plugin);
-	}
-	
-	public List<Plugin> getPlugins() {
-		return plugins;
+	public void addPlugin(String id, Plugin plugin) {
+		this.plugins.put(id, plugin);
 	}
 	
 	/**
@@ -57,8 +58,11 @@ public class GenericEWeb4J implements EWeb4J{
 	 * @date 2013-6-13 上午11:55:02
 	 */
 	public final GenericEWeb4J startup() {
-		for (Plugin plugin : this.plugins) {
-			this.pluginManager.install(plugin, this);
+		for (Iterator<Entry<String, Plugin>> it = this.plugins.entrySet().iterator(); it.hasNext(); ) {
+			Entry<String, Plugin> e = it.next();
+			String id = e.getKey();
+			Plugin plugin = e.getValue();
+			this.pluginManager.install(id, plugin);
 		}
 		
 		List<String> listenerClasses = this.configFactory.getListeners();

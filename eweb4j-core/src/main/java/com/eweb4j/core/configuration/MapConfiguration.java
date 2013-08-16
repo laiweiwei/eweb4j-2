@@ -30,4 +30,5 @@ public class MapConfiguration<K, V> extends AbstractConfiguration<K, V>{
 	public V get(K key, Object... args) {
 		return getMap().get(key);
 	}
+	
 }

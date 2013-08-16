@@ -1,6 +1,8 @@
 package com.eweb4j.core.plugin;
 
-import com.eweb4j.core.EWeb4J;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.MapConfiguration;
 
@@ -42,36 +44,36 @@ public class PluginManagerImpl extends PluginManager{
 	 * @param id 插件ID
 	 * @return
 	 */
-	public Plugin getPlugin(String id) {
-		return this.plugins == null ? null : this.plugins.get(id);
+	public Plugin getPlugin(String pluginID) {
+		return this.plugins == null ? null : this.plugins.get(pluginID);
 	}
 	
 	/**
 	 * 安装插件
 	 */
-	public boolean install(Plugin plugin, EWeb4J eweb4j) {
-		if (this.plugins.containsKey(plugin.ID()))
+	public boolean install(String pluginID, Plugin plugin) {
+		if (this.plugins.containsKey(pluginID))
 			return true;
 		
 		//初始化插件
 		try {
 			plugin.init(eweb4j);
 		} catch (Throwable e) {
-			throw new RuntimeException("plugin->" + plugin.ID() + " init failed.", e);
+			throw new RuntimeException("plugin->" + pluginID + " init failed.", e);
 		}
 		
 		//启动插件
 		try {
 			plugin.start();
 		} catch (Throwable e){
-			throw new RuntimeException("plugin->" + plugin.ID() + " start failed.", e);
+			throw new RuntimeException("plugin->" + pluginID + " start failed.", e);
 		}
 		
 		//注册插件ID到仓库中
-		this.plugins.put(plugin.ID(), plugin);
+		this.plugins.put(pluginID, plugin);
 		
 		//TODO: 使用监听器代替
-		System.out.println("plugin->"+plugin.ID()+" install success.");
+		System.out.println("plugin->"+pluginID+" install success.");
 		
 		return true;
 	}
@@ -79,19 +81,24 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 卸载插件
 	 */
-	public boolean uninstall(Plugin plugin) {
+	public boolean uninstall(String pluginID, Plugin plugin) {
 		//先关闭插件
 		try {
-			plugin.stop();
+			Plugin _plugin = getPlugin(pluginID);
+			if (_plugin != null)
+				_plugin.stop();
+			if (plugin != null)
+				plugin.stop();
+			
 		} catch (Throwable e){
-			throw new RuntimeException("plugin->" + plugin.ID() + " stop failed.", e);
+			throw new RuntimeException("plugin->" + pluginID + " stop failed.", e);
 		}
 		
 		//从仓库中去除
-		this.plugins.remove(plugin.ID());
+		this.plugins.remove(pluginID);
 		
 		//TODO: 使用监听器代替
-		System.out.println("plugin->"+plugin.ID()+" uninstall success.");
+		System.out.println("plugin->"+pluginID+" uninstall success.");
 		
 		return true;
 	}
@@ -99,14 +106,14 @@ public class PluginManagerImpl extends PluginManager{
 	/**
 	 * 升级插件 
 	 */
-	public boolean upgrade(Plugin plugin, EWeb4J eweb4j) {
+	public boolean upgrade(String pluginID, Plugin plugin) {
 		//先卸载插件
-		uninstall(plugin);
+		uninstall(pluginID, plugin);
 		//然后安装插件
-		install(plugin, eweb4j);
+		install(pluginID, plugin);
 		
 		//TODO: 使用监听器代替
-		System.out.println("plugin->"+plugin.ID()+" upgrade success.");
+		System.out.println("plugin->"+pluginID+" upgrade success.");
 		
 		return true;
 	}
@@ -115,9 +122,12 @@ public class PluginManagerImpl extends PluginManager{
 	 * 停止所有插件
 	 */
 	public boolean stopAll() {
-		while (this.plugins.hasNext()) {
-			Plugin plugin = this.plugins.next();
-			uninstall(plugin);
+		for (Iterator<Entry<String, Plugin>> it = this.plugins.getMap().entrySet().iterator(); it.hasNext();) {
+			Entry<String, Plugin> e = it.next();
+			Plugin plugin = e.getValue();
+			String pluginID = e.getKey();
+			it.remove();
+			uninstall(pluginID, plugin);
 		}
 		
 		return true;

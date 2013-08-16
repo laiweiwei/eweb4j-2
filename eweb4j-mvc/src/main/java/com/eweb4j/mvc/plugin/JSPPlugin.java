@@ -8,11 +8,6 @@ public class JSPPlugin extends AbstractTemplateEnginePlugin{
 	private final static String engine_key = "jsp";
 	
 	@Override
-	public String ID() {
-		return "JSP-Plugin";
-	}
-
-	@Override
 	public void init(String viewAbsolutePath) {
 	}
 	

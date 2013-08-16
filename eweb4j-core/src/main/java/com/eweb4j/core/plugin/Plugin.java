@@ -14,21 +14,21 @@ public abstract class Plugin {
 	 * @date 2013-6-13 上午11:43:15
 	 * @return
 	 */
-	public abstract String ID();
+	//public abstract String ID();
 	
 	/**
 	 * 插件名称 
 	 * @date 2013-6-13 上午11:43:24
 	 * @return
 	 */
-	public abstract String name();
+	//public abstract String name();
 	
 	/**
 	 * 插件提供者 
 	 * @date 2013-6-13 上午11:43:34
 	 * @return
 	 */
-	public abstract String provider();
+	//public abstract String provider();
 	
 	/**
 	 * 初始化插件

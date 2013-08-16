@@ -1,14 +1,13 @@
 package com.eweb4j.core.configuration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractConfiguration<K, V> implements Configuration<K, V>{
 	
-	public void put(K key, V value) {
-		getMap().put(key, value);
-	}
-
 	public void init(){}
 	
 	public abstract V get(K key, Object... args) ;
@@ -179,26 +178,6 @@ public abstract class AbstractConfiguration<K, V> implements Configuration<K, V>
 		return null;
 	}
 
-	public boolean containsKey(K key) {
-		return getMap().containsKey(key);
-	}
-
-	public V remove(K key) {
-		return getMap().remove(key);
-	}
-
-	public boolean hasNext() {
-		return !getMap().isEmpty();
-	}
-
-	public V next() {
-		return getMap().entrySet().iterator().next().getValue();
-	}
-
-	public void clear() {
-		this.getMap().clear();
-	}
-
 	public List<String> getListString(K key, String split) {
 		String[] arr = this.getString(key, "").split(split);
 		List<String> list = new ArrayList<String>(arr.length);
@@ -281,4 +260,51 @@ public abstract class AbstractConfiguration<K, V> implements Configuration<K, V>
 		return getListString(key, ",");
 	}
 
+	public int size() {
+		return this.getMap().size();
+	}
+
+	public boolean isEmpty() {
+		return getMap().isEmpty();
+	}
+
+	public boolean containsKey(Object key) {
+		return getMap().containsKey(key);
+	}
+
+	public boolean containsValue(Object value) {
+		return getMap().containsValue(value);
+	}
+
+	public V get(Object key) {
+		return getMap().get(key);
+	}
+
+	public V put(K key, V value) {
+		return getMap().put(key, value);
+	}
+
+	public V remove(Object key) {
+		return getMap().remove(key);
+	}
+
+	public void putAll(Map<? extends K, ? extends V> m) {
+		getMap().putAll(m);
+	}
+
+	public void clear() {
+		getMap().clear();
+	}
+
+	public Set<K> keySet() {
+		return getMap().keySet();
+	}
+
+	public Collection<V> values() {
+		return getMap().values();
+	}
+
+	public Set<java.util.Map.Entry<K, V>> entrySet() {
+		return getMap().entrySet();
+	}
 }

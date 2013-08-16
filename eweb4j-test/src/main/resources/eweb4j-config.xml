@@ -14,21 +14,20 @@
 				<property name="relative_path_of_view" value="/WEB-INF/view" />
 			</properties>
 		</configuration>
+		
 		<!--
 		  | 插件配置
 		-->
 		<configuration id="plugin">
 			<properties>
-				<!--
-				  | 多个相同名字的property的值会被当成数组使用","连接起来
-				-->
-				<property name="class" value="com.eweb4j.orm.plugin.ORMPlugin" enabled="1" />
-				<property name="class" value="com.eweb4j.plugins.DruidPlugin" enabled="1"  />
-				<property name="class" value="com.eweb4j.mvc.plugin.JSPPlugin" enabled="0"  />
-				<property name="class" value="com.eweb4j.mvc.plugin.VelocityPlugin" enabled="0"  />
-				<property name="class" value="com.eweb4j.mvc.plugin.FreemarkerPlugin" enabled="0"  />
+				<property name="jpa-plugin" value="com.eweb4j.jpa.plugin.JPAPlugin" enabled="1" />
+				<property name="druid-plugin" value="com.eweb4j.plugins.DruidPlugin" enabled="1"  />
+				<property name="jsp-plugin" value="com.eweb4j.mvc.plugin.JSPPlugin" enabled="0"  />
+				<property name="velocity-plugin" value="com.eweb4j.mvc.plugin.VelocityPlugin" enabled="0"  />
+				<property name="freemarker-plugin" value="com.eweb4j.mvc.plugin.FreemarkerPlugin" enabled="0"  />
 			</properties>
 		</configuration>
+
 		<!--
 		  | 监听器配置
 		-->

@@ -2,8 +2,13 @@ package com.eweb4j.test;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.ioc.IOC;
-import com.eweb4j.orm.db.DAO;
+import com.eweb4j.core.orm.DAO;
 
+/**
+ * 框架监听器
+ * @author vivi
+ *
+ */
 public class EWeb4JListener implements EWeb4J.Listener{
 	
 	private IOC ioc = null;

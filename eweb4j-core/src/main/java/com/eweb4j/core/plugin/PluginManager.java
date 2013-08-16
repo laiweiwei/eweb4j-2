@@ -11,6 +11,12 @@ import com.eweb4j.core.configuration.Configuration;
  */
 public abstract class PluginManager {
 
+	protected EWeb4J eweb4j;
+	
+	public void setEWeb4J(EWeb4J eweb4j){
+		this.eweb4j = eweb4j;
+	}
+	
 	/**
 	 * 获取插件仓库
 	 * @return
@@ -23,14 +29,15 @@ public abstract class PluginManager {
 	 * @param id 插件ID
 	 * @return
 	 */
-	public abstract Plugin getPlugin(String id);
+	public abstract Plugin getPlugin(String pluginID);
 	
 	/**
 	 * 安装插件 
 	 * @date 2013-6-13 上午11:08:54
+	 * @param pluginID
 	 * @param plugin
 	 */
-	public abstract boolean install(Plugin plugin, EWeb4J eweb4j);
+	public abstract boolean install(String pluginID, Plugin plugin);
 	
 	/**
 	 * 卸载插件 
@@ -38,15 +45,16 @@ public abstract class PluginManager {
 	 * @param plugin
 	 * @return
 	 */
-	public abstract boolean uninstall(Plugin plugin);
+	public abstract boolean uninstall(String pluginID, Plugin plugin);
 
 	/**
 	 * 升级插件
 	 * @date 2013-6-13 上午11:10:53
+	 * @param pluginID
 	 * @param plugin
 	 * @return
 	 */
-	public abstract boolean upgrade(Plugin plugin, EWeb4J eweb4j);
+	public abstract boolean upgrade(String pluginID, Plugin plugin);
 	
 	/**
 	 * 停止所有插件 

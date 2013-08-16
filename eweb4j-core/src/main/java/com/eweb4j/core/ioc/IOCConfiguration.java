@@ -10,8 +10,8 @@ import org.simpleframework.xml.core.Persister;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.configuration.XMLConfiguration;
-import com.eweb4j.core.configuration.xml.IOCXmlBean;
-import com.eweb4j.core.configuration.xml.PojoXmlBean;
+import com.eweb4j.core.configuration.xml.IOCBean;
+import com.eweb4j.core.configuration.xml.PojoBean;
 
 /**
  * IOC Configuration
@@ -19,10 +19,10 @@ import com.eweb4j.core.configuration.xml.PojoXmlBean;
  *
  * @param <T>
  */
-public class IOCConfiguration extends XMLConfiguration<String, PojoXmlBean>{
+public class IOCConfiguration extends XMLConfiguration<String, PojoBean>{
 
 	//IOC Pojo xml config cache
-	protected Map<String, PojoXmlBean> pojoMap = new HashMap<String, PojoXmlBean>();;
+	protected Map<String, PojoBean> pojoMap = new HashMap<String, PojoBean>();;
 	
 	public IOCConfiguration(){
 	}
@@ -52,20 +52,20 @@ public class IOCConfiguration extends XMLConfiguration<String, PojoXmlBean>{
 		if (!f.exists()) throw new RuntimeException("xml->"+f.getAbsolutePath()+" not found");
     	if (!f.isFile()) throw new RuntimeException("xml->"+f.getAbsolutePath()+" is not a file");
     	
-		IOCXmlBean ioc = serializer.read(IOCXmlBean.class, f);
-		List<PojoXmlBean> pojos = ioc.getPojos();
+		IOCBean ioc = serializer.read(IOCBean.class, f);
+		List<PojoBean> pojos = ioc.getPojos();
 		if (pojos == null || pojos.isEmpty()) return;
-		for (PojoXmlBean pojo : pojos){
+		for (PojoBean pojo : pojos){
 			pojoMap.put(pojo.getId(), pojo);
 		}
 	}
 	
 	@Override
-	public PojoXmlBean get(String key, Object... args) {
+	public PojoBean get(String key, Object... args) {
 		return this.pojoMap.get(key);
 	}
 	
-	public Map<String, PojoXmlBean> getMap() {
+	public Map<String, PojoBean> getMap() {
 		return this.pojoMap;
 	}
 	
