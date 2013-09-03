@@ -163,7 +163,7 @@ public class RowMappings {
 				
 				list.add(t);
 			} catch (Throwable e){
-				e.printStackTrace();
+//				e.printStackTrace();
 			}
 		}
 
