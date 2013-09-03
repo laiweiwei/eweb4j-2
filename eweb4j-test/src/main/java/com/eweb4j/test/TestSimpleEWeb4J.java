@@ -1,6 +1,7 @@
 package com.eweb4j.test;
 
 import java.util.List;
+import java.util.Map;
 
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.SimpleEWeb4J;
@@ -48,13 +49,16 @@ public class TestSimpleEWeb4J {
 		p.setAge(55);
 		dao.updateFields("age");
 		
-		List<Pets> pets = dao.query("select * from #table");
-		System.out.println("pet->"+pets);
+//		List<Pets> pets = dao.query("select * from #table");
+//		System.out.println("pet->"+pets);
 		
-		pets = dao.alias("p").join("user", "u")
-			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
+		List<Map> maps = new DAO(eweb4j, Map.class).query("select * from t_pet");
+		System.out.println("maps->"+maps);
 		
-		System.out.println("pet->"+pets);
+//		pets = dao.alias("p").join("user", "u")
+//			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
+//		
+//		System.out.println("pet->"+pets);
 		
 		System.out.println();
 		

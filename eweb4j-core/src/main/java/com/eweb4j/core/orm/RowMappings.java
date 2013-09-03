@@ -3,21 +3,31 @@ package com.eweb4j.core.orm;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.eweb4j.core.configuration.ConfigurationFactory;
+import com.eweb4j.core.jdbc.JDBCColumn;
 import com.eweb4j.core.jdbc.JDBCRow;
-import com.eweb4j.core.orm.EntityRelationMapping;
-import com.eweb4j.core.orm.FieldRelationMapping;
 import com.eweb4j.core.util.ClassUtil;
 import com.eweb4j.core.util.ReflectUtil;
 
-public class PojoMappings {
+/**
+ * Mapping JDBCRow to POJO or Map Object
+ * @author vivi
+ *
+ */
+public class RowMappings {
 
 	private Class<?> cls;
 	private ConfigurationFactory configFactory = null;
 	
-	public PojoMappings(Class<?> cls, ConfigurationFactory configFactory){
+	public RowMappings(Class<?> cls){
+		this.cls = cls;
+	}
+	
+	public RowMappings(Class<?> cls, ConfigurationFactory configFactory){
 		this.cls = cls;
 		this.configFactory = configFactory;
 	}
@@ -27,12 +37,29 @@ public class PojoMappings {
 		if (rows == null || rows.isEmpty()) 
 			return null;
 		
-		EntityRelationMapping jpaInfo = this.configFactory.getEntityRelationMapping(cls);
+		EntityRelationMapping jpaInfo = null;
+		if (this.configFactory != null)
+			jpaInfo = this.configFactory.getEntityRelationMapping(cls);
+		
 		List<T> list = new ArrayList<T>();
-		T t = null;
+		
 		for (JDBCRow row : rows) {
+			if (row == null || row.columns() == null) continue;
 			try {
-				t = (T) cls.newInstance();
+				if (Map.class.isAssignableFrom(cls)) {
+					@SuppressWarnings("rawtypes")
+					Map map = new HashMap();
+					List<JDBCColumn> cols = row.columns();
+					for (JDBCColumn col : cols) {
+						map.put(col.name(), col.value());
+					}
+					list.add((T)map);
+					continue;
+				}
+				
+				if (jpaInfo == null) continue;
+				
+				T t = (T) cls.newInstance();
 				ReflectUtil ru = new ReflectUtil(t);
 				for (FieldRelationMapping jpa : jpaInfo.getFieldRelationMappings()) {
 					String relCol = jpa.getRelCol();
@@ -106,7 +133,12 @@ public class PojoMappings {
 						Field field = ru.getField(fieldName);
 						Class<?> tarClass = field.getType();
 						Object tarObj = tarClass.newInstance();
-						EntityRelationMapping tarJpa = this.configFactory.getEntityRelationMapping(tarClass);
+						EntityRelationMapping tarJpa = null;
+						if (this.configFactory != null)
+							tarJpa = this.configFactory.getEntityRelationMapping(tarClass);
+						
+						if (tarJpa == null) continue;
+						
 						String relField = null;
 						if (relCol == null || relCol.trim().length() == 0){
 							relCol = tarJpa.getIdCol();

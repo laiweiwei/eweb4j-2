@@ -3,6 +3,8 @@ package com.eweb4j.jpa.plugin;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.ENTITY_RELATION_MAPPING_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.ORM_ID;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.eweb4j.core.EWeb4J;
@@ -33,18 +35,36 @@ public class JPAPlugin extends Plugin{
 		//获取ORM配置信息
 		Configuration<String, ?> ormConfig = eweb4j.getConfigFactory().getConfiguration(ORM_ID);
 		//获取JPA实体类配置
-		List<String> entities = ormConfig.getListString("entity");
-		if (entities == null) return ;
+		List<String> entities = new ArrayList<String>();
+		List<String> _entities = ormConfig.getListString("entity");
+		if (_entities != null) 
+			entities.addAll(_entities);
+		
+		List<String> packages = ormConfig.getListString("scan");
+		if (packages != null) {
+			for (String pkg : packages) {
+				String abpath = EWeb4J.Constants.resolve_path(pkg);
+				File dir = new File(abpath);
+				if (!dir.exists() || !dir.isDirectory()) continue;
+				for (File f : dir.listFiles()) {
+					String className = pkg.replace("classpath:", "").replace("/", ".")
+											+ "." + f.getName().replace(".class", "");
+					entities.add(className);
+				}
+			}
+		}
 		
 		for (String entity : entities) {
 			try {
 				Class<?> entityClass = Thread.currentThread().getContextClassLoader().loadClass(entity);
 				//扫描实体类的JPA注解信息，转化成关系映射信息
 				EntityRelationMapping erm = JPAScanner.scan(entityClass);
+				if (erm == null) continue;
 				//添加实体类的关系映射信息
 				this.eweb4j.getConfigFactory().addEntityRelationMapping(entity, erm);
 			} catch (Throwable e){
-				e.printStackTrace();
+//				e.printStackTrace();
+				continue;
 			}
 		}
 	}

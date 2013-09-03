@@ -39,5 +39,11 @@ public class JPAFieldRelationMapping implements FieldRelationMapping{
 	public void setRelCol(String relCol) {
 		this.relCol = relCol;
 	}
+	@Override
+	public String toString() {
+		return "JPAFieldRelationMapping [name=" + name + ", column=" + column
+				+ ", dataType=" + dataType + ", joinEntity=" + joinEntity
+				+ ", relCol=" + relCol + "]";
+	}
 	
 }

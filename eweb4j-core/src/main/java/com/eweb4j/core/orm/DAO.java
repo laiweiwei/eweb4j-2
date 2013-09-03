@@ -4,21 +4,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.eweb4j.core.EWeb4J;
 import com.eweb4j.core.orm.FieldRelationMapping;
 
 public class DAO extends SQL{
 
-	public DAO(){
-		super();
-	}
-	
-	public DAO(EWeb4J eweb4j, Object anything){
-		super(eweb4j, anything);
-	}
-	
 	private Object _get_id(){
-		String idField = super.jpa.getId();
+		String idField = super.erm.getId();
 		Method idGetter = super.reflectUtil.getGetter(idField);
 		if (idGetter == null) return null;
 		
@@ -41,11 +35,23 @@ public class DAO extends SQL{
 		return 0;
 	}
 	
+	public DAO(){
+		super();
+	}
+	
+	public DAO(DataSource ds, Object anything){
+		super(ds, anything);
+	}
+	
+	public DAO(EWeb4J eweb4j, Object anything){
+		super(eweb4j, anything);
+	}
+	
 	public void create(){
 		final String eql = "INSERT INTO #table(#columns) values(#values)";
 		
 		Number idVal = super.update(eql);
-		String idField = this.jpa.getId();
+		String idField = this.erm.getId();
 		Method idSetter = super.reflectUtil.getSetter(idField);
 		if (idSetter == null)
 			return ;
@@ -80,7 +86,7 @@ public class DAO extends SQL{
 			try {
 				if (sb.length() > 0)
 					sb.append(",");
-				FieldRelationMapping f = jpa.getFieldRelationMappingByField(field);
+				FieldRelationMapping f = super.erm.getFieldRelationMappingByField(field);
 				sb.append(f.getColumn()).append("=?");
 				Method fieldGetter = super.reflectUtil.getGetter(field);
 				Object value = fieldGetter.invoke(super.reflectUtil.getObject());
