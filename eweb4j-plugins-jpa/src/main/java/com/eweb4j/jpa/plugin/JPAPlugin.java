@@ -3,7 +3,6 @@ package com.eweb4j.jpa.plugin;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.ENTITY_RELATION_MAPPING_ID;
 import static com.eweb4j.core.EWeb4J.Constants.Configurations.ORM_ID;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import com.eweb4j.core.configuration.Configuration;
 import com.eweb4j.core.configuration.MapConfiguration;
 import com.eweb4j.core.orm.EntityRelationMapping;
 import com.eweb4j.core.plugin.Plugin;
+import com.eweb4j.core.util.ClassUtil;
 import com.eweb4j.jpa.config.JPAScanner;
 
 /**
@@ -40,18 +40,10 @@ public class JPAPlugin extends Plugin{
 		if (_entities != null) 
 			entities.addAll(_entities);
 		
-		List<String> packages = ormConfig.getListString("scan");
-		if (packages != null) {
-			for (String pkg : packages) {
-				String abpath = EWeb4J.Constants.resolve_path(pkg);
-				File dir = new File(abpath);
-				if (!dir.exists() || !dir.isDirectory()) continue;
-				for (File f : dir.listFiles()) {
-					String className = pkg.replace("classpath:", "").replace("/", ".")
-											+ "." + f.getName().replace(".class", "");
-					entities.add(className);
-				}
-			}
+		List<String> regexs = ormConfig.getListString("scan");
+		if (regexs != null) {
+			List<String> classes = ClassUtil.getClassFromClassPathAndJars(regexs.toArray(new String[]{}));
+			entities.addAll(classes);
 		}
 		
 		for (String entity : entities) {

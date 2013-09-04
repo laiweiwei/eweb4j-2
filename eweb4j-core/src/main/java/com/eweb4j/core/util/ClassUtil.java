@@ -1,11 +1,17 @@
 package com.eweb4j.core.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * 操纵类的工具类 
@@ -13,6 +19,144 @@ import java.util.Date;
  * @date 2013-6-29 上午11:06:48
  */
 public class ClassUtil {
+	
+	public static void main(String[] args) {
+		List<String> classes = getClassFromClassPathAndJars("javax\\.xml\\.stream\\.events.*", "com\\.eweb4j\\.core\\.orm\\..*");
+		for (String name : classes) {
+			System.out.println(name);
+		}
+	}
+	
+	public static List<String> getClassFromClassPathAndJars(String... regex) {
+		List<String> classes = getClassFromJars(regex);
+		List<String> _classes = getClassFromClassPath(regex);
+		classes.addAll(_classes);
+		
+		return classes;
+	}
+	
+	public static List<String> getClassFromClassPath(String... regex){
+		List<String> classes = new ArrayList<String>();
+		String classpath = FileUtil.getTopClassPath(ClassUtil.class).replace("\\", "/");
+		if (classpath.startsWith("/")) classpath = classpath.substring(1);
+		List<File> files = getFilesFromClassPath(classpath);
+		for (File f : files) {
+			String n = f.getAbsolutePath().replace("\\", "/").replace(classpath, "");
+			String className = n.replace("/", ".").replace(".class", "");
+			if (regex != null && regex.length > 0) {
+				for (String rgx : regex) {
+					if (className.matches(rgx)){
+						classes.add(className);
+						break;
+					}
+				}
+			}else
+				classes.add(className);
+		}
+		
+		return classes;
+	}
+	
+	public static List<File> getFilesFromClassPath(String classpath) {
+		File dir = new File(classpath);
+		return getFilesFromDir(dir);
+	}
+	
+	public static List<File> getFilesFromDir(File dir) {
+		List<File> files = new ArrayList<File>();
+		for (File f : dir.listFiles()) {
+			if (!dir.exists()) continue;
+			if (f.isDirectory())  {
+				List<File> _files = getFilesFromDir(f);
+				files.addAll(_files);
+				continue;
+			}
+			
+			files.add(f);
+		}
+		
+		return files;
+	}
+	
+	public static List<String> getClassFromJars(String... regex) {
+		List<String> classes = new ArrayList<String>();
+		List<File> jars = getJars();
+		for (File jar : jars) {
+			List<String> _classes = getClassFromJar(jar, regex);
+			classes.addAll(_classes);
+		}
+		
+		return classes;
+	}
+	
+	private static List<String> getClassFromJar(File jar, String... regex) {
+		List<String> files = new ArrayList<String>();
+		if (jar == null)
+			return files;
+
+		ZipInputStream zin = null;
+		ZipEntry entry = null;
+		try {
+			zin = new ZipInputStream(new FileInputStream(jar));
+			while ((entry = zin.getNextEntry()) != null) {
+				String entryName = entry.getName().replace("\\", "/").replace('/', '.');
+				if (!entryName.endsWith(".class"))
+					continue;
+				
+				final String className = entryName.replace(".class", "");
+				
+				if (regex != null && regex.length > 0) {
+					for (String rgx : regex) {
+						if (className.matches(rgx)){
+							files.add(className);
+							break;
+						}
+					}
+				}else
+					files.add(className);
+				
+				zin.closeEntry();
+			}
+			zin.close();
+		} catch (Error e) {
+		} catch (Exception e) {
+		}
+		
+		return files;
+	}
+	
+	public static List<File> getJars(String... regex){
+		List<File> jars = new ArrayList<File>();
+		List<String> paths = FileUtil.getJars();
+		List<String> validPaths = _filter_jars(paths, regex);
+		for (String p : validPaths) {
+			File jar = new File(p);
+			if (!jar.exists() || !jar.isFile()) continue;
+			jars.add(jar);
+		}
+		
+		return jars;
+	}
+	
+	private static List<String> _filter_jars(List<String> _jars, String... regex) {
+		List<String> list = new ArrayList<String>();
+		if (_jars == null) return list;
+		for (String _jar : _jars) {
+			String jar = _jar.replace("\\", "/");
+			final String name = new File(jar).getName().replace(".jar", "");
+			if (regex == null || regex.length == 0) {
+				list.add(jar);
+				 continue;
+			}
+			
+			if (!name.matches(regex[0])) 
+				continue;
+			
+			list.add(jar);
+		}
+		
+		return list;
+	}
 	
 	/**
 	 * 获取给定方法返回的真实Class类型

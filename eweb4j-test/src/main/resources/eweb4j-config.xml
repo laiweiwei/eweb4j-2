@@ -63,7 +63,7 @@
 			<properties>
 				<!--property name="entity" value="com.eweb4j.test.User"  />
 				<property name="entity" value="com.eweb4j.test.Pets"  /-->
-				<property name="package" value="classpath:com/eweb4j/test" />
+				<property name="scan" value="com\.eweb4j\.test\..*" />
 			</properties>
 		</configuration>
 		<!--
