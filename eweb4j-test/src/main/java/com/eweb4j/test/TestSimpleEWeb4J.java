@@ -51,8 +51,11 @@ public class TestSimpleEWeb4J {
 		List<Pets> pets = dao.query("select * from #table");
 		System.out.println("pet->"+pets);
 		
-		pets = dao.alias("p").join("user", "u")
-			    .query("select p.* from #p.table p, #u.table u where #p.user = #u.id and #u.pwd = ? order by #p.id asc", 123);
+		pets = dao.alias("p")
+				.join("user", "u")
+			    .query("select p.* from #p.table p, #u.table u " +
+			    		"where #p.user = #u.id and #u.pwd = ? " +
+			    		"order by #p.id asc", 123);
 		
 		System.out.println("pet->"+pets);
 		
