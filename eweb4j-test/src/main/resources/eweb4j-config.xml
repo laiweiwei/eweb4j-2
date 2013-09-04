@@ -61,9 +61,9 @@
 		-->
 		<configuration id="orm">
 			<properties>
-				<property name="entity" value="com.eweb4j.test.User"  />
-				<property name="entity" value="com.eweb4j.test.Pets"  />
-				<property name="package" value="com.eweb4j.test.model" />
+				<!--property name="entity" value="com.eweb4j.test.User"  />
+				<property name="entity" value="com.eweb4j.test.Pets"  /-->
+				<property name="scan" value="com\.eweb4j\.test\..*" />
 			</properties>
 		</configuration>
 		<!--

@@ -64,4 +64,11 @@ public class JPAEntityRelationMapping implements EntityRelationMapping{
 		this.fieldRelationMappings = fieldRelationMappings;
 	}
 
+	@Override
+	public String toString() {
+		return "JPAEntityRelationMapping [fieldRelationMappings="
+				+ fieldRelationMappings + ", table=" + table + ", id=" + id
+				+ ", idCol=" + idCol + "]";
+	}
+
 }

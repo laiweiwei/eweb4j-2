@@ -4,11 +4,13 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.eweb4j.core.jdbc.JDBCColumn;
 import com.eweb4j.core.jdbc.JDBCHelper;
 import com.eweb4j.core.jdbc.JDBCRow;
+import com.eweb4j.core.orm.RowMappings;
 
 /**
  * TODO
@@ -26,8 +28,12 @@ public class TestDruid {
 		ds.setTestWhileIdle(true);
 		ds.setValidationQuery("select * from t_pet where 1 = 1");
 		
-		int r = JDBCHelper.execute(ds, "update t_pet set create_at = ? where id = ?", new Date(), 29);
+		int r = JDBCHelper.execute(ds, "update t_pet set created_at = ? where id = ?", new Date(), 29);
 		System.out.println(r);
+		
+		int[] rr = JDBCHelper.batchExecute(ds, "insert into t_pet(name, age) values(?,?)", new Object[][]{new Object[]{1,1}, new Object[]{2,2}});
+		for (int n : rr)
+			System.out.println(n);
 		
 		List<JDBCRow> rows = JDBCHelper.find(ds, "select * from t_pet");
 		for (JDBCRow row : rows) {
@@ -38,9 +44,11 @@ public class TestDruid {
 			}
 		}
 		
-		int[] rr = JDBCHelper.batchExecute(ds, "insert into t_pet(name, age) values(?,?)", new Object[][]{new Object[]{1,1}, new Object[]{2,2}});
-		for (int n : rr)
-			System.out.println(n);
+		RowMappings mappings = new RowMappings(Map.class);
+		List<Map> maps = mappings.mapping(rows);
+		if (maps != null)
+			for (Map m : maps) 
+				System.out.println(m);
 	}
 	
 }
